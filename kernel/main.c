@@ -46,4 +46,5 @@ welcome(void) {
 	const char *str;
 	for (str = prompt; *str; str ++)
 		console_printc(*str);
+	printk("Hello Yinyanghu!\n");
 }
