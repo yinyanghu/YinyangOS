@@ -1,6 +1,8 @@
 #include "kernel.h"
 
 struct PCB *current_pcb = NULL;
+struct PCB *last_pcb;
+struct PCB *init;
 
 /* You interrupt handler (use add_intr_handle to register)
    just need to set "need_sched" to be TRUE,
@@ -11,6 +13,7 @@ void
 schedule(void) {
 	if (need_sched)
 	{
+		//printk("hello\n");
 		current_pcb = current_pcb -> next;
 		need_sched = FALSE;
 	}

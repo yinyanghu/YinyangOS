@@ -20,6 +20,9 @@ os_init(void) {
 	/* Flush the screen, move cursor to (0, 0). */
 	init_screen();
 
+	/* Initialize interrupt handlers */
+	init_handle();
+
 	/* Set up interrupt and exception handlers,
 	   just as we did in the game. */
 	init_idt();
@@ -29,7 +32,7 @@ os_init(void) {
 
 	/* Initialize process table. You should fill this. */
 	init_proc();
-
+	
 	welcome();
 
 	enable_interrupt();

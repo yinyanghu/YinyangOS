@@ -8,6 +8,7 @@
 #include "irq.h"
 #include "console.h"
 #include "process.h"
+#include "myproc.h"
 
 void vfprintf(void (*)(char), const char *, void **);
 

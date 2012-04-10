@@ -42,34 +42,54 @@ void Create_kthread(void (*thread)(void)) {
 	int new = Find_Empty_PCB();
 	if (new == PROC_FULL)
 		panic("Process Table is Full!\n");
-	Proc[new].next = init;
-	last_pcb -> next = &Proc[new];
-	last_pcb = &Proc[new];
-	struct STACK_type *SP = (struct STACK_type*)(Proc[next] - sizeof(struct STACK_type));
-	SP -> esp = (uint32)&SP -> esp + 4;
 
+	printk("%d", new);
+	(Proc + new) -> flag = 0;
+	
+//	(Proc + new) -> next = init;
+//	last_pcb -> next = Proc + new;
+//	last_pcb = Proc + new;
+	struct STACK_type *SP = (struct STACK_type*)(((Proc + new) -> stack) - sizeof(struct STACK_type));
+
+	//printk("%d\n", SP);
+	SP -> esp = (uint_32)&SP -> esp + 4;
+	(Proc + new) -> esp = (void *)SP -> esp;
+
+//printk("yyy\n");
 	SP -> eip = (uint_32)thread;
 	SP -> cs = 8;
 	SP -> eflags.IF = 1;
-	SP -> tf.irq = 1000;
+	SP -> tf.irq = 1001;
 
 }
 
 
 void init_proc() {
 
+	int i;
+
 	init = Proc;
-	init -> next = init;
+	init -> next = (Proc + 1);
 	last_pcb = init;
-	for (int i = 0; i < MAX_PROC; ++ i)
+	for (i = 0; i < MAX_PROC; ++ i)
 		Proc[i].flag = 1;
 
-	current_pcb = init;
 
+	//current_pcb = (Proc + 1);
+	printk("yinyangh\n");
+
+	
 	Create_kthread(process_A);
+	//printk("%d %d\n", (Proc + 1), &((Proc + 1) -> esp));
 	Create_kthread(process_B);
 	Create_kthread(process_C);
-	last_pcb -> next = Proc[1];
+	(Proc + 1) -> next =  Proc + 2;
+	(Proc + 2) -> next = Proc + 3;
+	(Proc + 3) -> next = Proc + 1;
+	//last_pcb -> next = (Proc + 1);
+	current_pcb = init; 
+//	panic("stop");
 
+	
 }
 

@@ -1,7 +1,7 @@
 #ifndef __PROCESS_H__
 #define __PROCESS_H__
 
-#define MAX_PROC	512
+#define MAX_PROC	8
 #define PROC_FULL	-1
 
 struct PCB {
@@ -11,11 +11,10 @@ struct PCB {
 	int flag;
 };
 
-extern struct PCB Proc[MAX_PROC];
+struct PCB Proc[MAX_PROC];
 
 extern struct PCB *current_pcb;
-extern struct PCB *tail_pcb;
-extern struct PCB *head_pcb;
+extern struct PCB *last_pcb;
 extern struct PCB *init;
 
 extern boolean need_sched;
