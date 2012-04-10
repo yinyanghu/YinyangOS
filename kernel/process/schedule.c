@@ -9,5 +9,9 @@ boolean need_sched = TRUE;
 
 void
 schedule(void) {
-	need_sched = FALSE;
+	if (need_sched)
+	{
+		current_pcb = current_pcb -> next;
+		need_sched = FALSE;
+	}
 }

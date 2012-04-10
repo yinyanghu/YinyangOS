@@ -43,7 +43,12 @@ asm_do_irq:
 #     2. USE (address) CAN REFERENCE MEMORY LOCATION OF address
 #     3. YOU MAY FLUSH ANY GENRAL PURPOSE REGISTER AS YOU WISH
 #     4. REGISTERS ARE REFERENCED BY "%", SUCH AS %esp
-	addl $4, %esp # when you finish the task, this should be removed
+	#addl $4, %esp # when you finish the task, this should be removed
+
+
+	movl (current_pcb), %esi
+	movl (%esi), %esp
+
 	popal
 	addl $4, %esp
 

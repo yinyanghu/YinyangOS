@@ -23,6 +23,7 @@ void init_segment(void);
 
 #define USER_MEM_LOW    (16 * 1024 * 1024)
 #define USER_MEM_HIGH   (128 * 1024 * 1024)
+#define STACK_SIZE	(1024 * 256)	//Stack Size = 1Mb
 
 static inline boolean
 in_kernel(void *addr) {
