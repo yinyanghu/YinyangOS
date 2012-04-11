@@ -16,4 +16,8 @@ void printk(const char *ctl, ...);
 /* system panic */
 void panic(const char *ctl, ...);
 
+
+/* color system panic */
+void color_panic(const char *ctl, ...);
+
 #endif

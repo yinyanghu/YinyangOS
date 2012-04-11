@@ -1,14 +1,18 @@
 #ifndef __PROCESS_H__
 #define __PROCESS_H__
 
-#define MAX_PROC	8
-#define PROC_FULL	-1
+#define MAX_PROC		64
+#define PROC_FULL		-1
+#define STATUS_WAITING		0
+#define STATUS_SLEEPING		-1
+#define STATUS_RUNNING		1
 
 struct PCB {
 	void *esp;
-	uint_32 stack[STACK_SIZE];
+	uint_32 kstack[STACK_SIZE];
 	struct PCB* next;
 	int flag;
+	int status;
 };
 
 struct PCB Proc[MAX_PROC];

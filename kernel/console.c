@@ -12,6 +12,7 @@
 #define BLACK        0
 #define BLUE         1
 #define WHITE        7
+#define RED	     12
 
 /* The memory-map of character screen is located at 0xB8000.
    This is a physical address which the kernel should not directly
@@ -101,6 +102,14 @@ console_printc(char ch) {
 	color_console_printc(WHITE, BLACK, ch);
 }
 
+
+
+void
+red_console_printc(char ch) {
+	color_console_printc(RED, BLACK, ch);
+}
+
+
 void
 printk(const char *ctl, ...) {
 	void **args = (void **)&ctl + 1;
@@ -111,6 +120,16 @@ void
 panic(const char *ctl, ...) {
 	void *args = (void **)&ctl + 1;
 	vfprintf(console_printc, ctl, args);
+	disable_interrupt();
+	while (1) {
+		idle_cpu();
+	}
+}
+
+void
+color_panic(const char *ctl, ...) {
+	void *args = (void **)&ctl + 1;
+	vfprintf(red_console_printc, ctl, args);
 	disable_interrupt();
 	while (1) {
 		idle_cpu();

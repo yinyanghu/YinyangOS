@@ -61,12 +61,16 @@ void set_need_sched() {
 	need_sched = TRUE;
 }
 
+void keyboard_handler() {
+	color_panic("\nKeyboard!\n");
+}
+
 void init_handle() {
 	int i;
 	for (i = 0; i < NR_IRQ; ++ i)
 		handles[i] = NULL;
 	add_irq_handle(0, set_need_sched);
-	add_irq_handle(1, set_need_sched);
+	add_irq_handle(1, keyboard_handler);
 	add_irq_handle(14, set_need_sched);
 }
 

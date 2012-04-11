@@ -9,12 +9,19 @@ struct PCB *init;
    schedule() will be called each time before interrupt return. */
 boolean need_sched = TRUE;
 
+struct PCB* find_next_live_process() {
+	struct PCB *p;
+	for (p = current_pcb -> next; p != NULL && p -> status != STATUS_WAITING; p = p -> next);
+	return p;
+}
+
 void
 schedule(void) {
 	if (need_sched)
 	{
-		//printk("hello\n");
-		current_pcb = current_pcb -> next;
+		current_pcb -> status = STATUS_WAITING;
+		current_pcb = find_next_live_process();
+		current_pcb -> status = STATUS_RUNNING;
 		need_sched = FALSE;
 	}
 }
