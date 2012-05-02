@@ -21,7 +21,6 @@ struct EFLAGS {
 	uint_32 offset  :14;
 };
 
-
 struct STACK_type {
 	uint_32 esp;
 	struct TrapFrame tf;
@@ -50,7 +49,8 @@ void Create_kthread(void (*thread)(void)) {
 	new_pcb -> status = STATUS_WAITING;
 	new_pcb -> flag = 0;
 	
-	struct STACK_type *SP = (struct STACK_type*)((new_pcb -> kstack) - sizeof(struct STACK_type));
+	struct STACK_type *SP = (struct STACK_type*)((int)(new_pcb -> kstack + STACK_SIZE) - sizeof(struct STACK_type));
+	//panic("SP = %d\n, kstack = %d\n, size = %d\n", (int)SP, (int)&new_pcb -> kstack[0], sizeof(struct STACK_type));
 
 	SP -> esp = (uint_32)SP + 4;
 	new_pcb-> esp = (void *)(SP -> esp);
@@ -77,7 +77,5 @@ void init_proc() {
 	last_pcb -> next = init -> next;
 
 	current_pcb = init;
-
-	
 }
 
