@@ -10,7 +10,7 @@
 struct PCB {
 	void *esp;
 	uint_32 kstack[STACK_SIZE];
-	struct PCB* next;
+	struct PCB *next, *prev;
 	int flag;
 	int status;
 };
@@ -18,7 +18,7 @@ struct PCB {
 struct PCB Proc[MAX_PROC];
 
 extern struct PCB *current_pcb;
-extern struct PCB *last_pcb;
+//extern struct PCB *last_pcb;
 extern struct PCB *init;
 
 extern boolean need_sched;

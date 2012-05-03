@@ -43,8 +43,12 @@ void Create_kthread(void (*thread)(void)) {
 		panic("Process Table is Full!\n");
 
 	struct PCB* new_pcb = Proc + new; 
-	last_pcb -> next = new_pcb;
-	last_pcb = new_pcb;
+	new_pcb -> next = init;
+	new_pcb -> prev = init -> prev;
+	init -> prev -> next = new_pcb;
+	init -> prev = new_pcb;
+	//last_pcb -> next = new_pcb;
+	//last_pcb = new_pcb;
 
 	new_pcb -> status = STATUS_WAITING;
 	new_pcb -> flag = 0;
@@ -67,14 +71,19 @@ void init_proc() {
 	int i;
 
 	init = Proc;			//Proc[0] --> init
-	last_pcb = init;
-	for (i = 0; i < MAX_PROC; ++ i)
+	init -> next = init -> prev = init;
+	init -> flag = 0;
+	init -> status = STATUS_WAITING;
+	
+	//last_pcb = init;
+
+	for (i = 1; i < MAX_PROC; ++ i)
 		Proc[i].flag = 1;
 
 	Create_kthread(process_A);
 	Create_kthread(process_B);
 	Create_kthread(process_C);
-	last_pcb -> next = init -> next;
+	//last_pcb -> next = init -> next;
 
 	current_pcb = init;
 }
