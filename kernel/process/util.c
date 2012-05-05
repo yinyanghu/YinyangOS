@@ -1,5 +1,7 @@
 #include "kernel.h"
 
+struct PCB Proc[MAX_PROC];
+
 struct EFLAGS {
 	uint_32 CF      :1;
 	uint_32 pad1    :1;
@@ -29,13 +31,34 @@ struct STACK_type {
 	struct EFLAGS eflags;
 };
 
+
+
+//static
 inline int Find_Empty_PCB() {
 	int i;
 	for (i = 1; i < MAX_PROC; ++ i)
-		if (Proc[i].flag == 1) return i;
+		if (Proc[i].flag == TRUE) return i;
 	return PROC_FULL;
 
 }
+
+struct PCB *init;
+
+
+
+void init_message_pool(struct PCB *ptr) {
+
+	int i;
+	for (i = 0; i < Max_Message_Pool; ++ i)
+		(ptr -> Msg_rec_Pool[i]).flag = TRUE;
+	ptr -> Msg_rec = NULL;
+	ptr -> Msg_ign = NULL;
+	Sem_init(&(ptr -> Msg_lock), 0);
+}
+
+
+
+
 
 void Create_kthread(void (*thread)(void)) {
 	int new = Find_Empty_PCB();
@@ -50,8 +73,18 @@ void Create_kthread(void (*thread)(void)) {
 	//last_pcb -> next = new_pcb;
 	//last_pcb = new_pcb;
 
+
+
+
+	//Initialize
+
 	new_pcb -> status = STATUS_WAITING;
-	new_pcb -> flag = 0;
+	new_pcb -> pid = new;
+	new_pcb -> flag = FALSE;
+
+	init_message_pool(new_pcb);
+
+
 	
 	struct STACK_type *SP = (struct STACK_type*)((int)(new_pcb -> kstack + STACK_SIZE) - sizeof(struct STACK_type));
 	//panic("SP = %d\n, kstack = %d\n, size = %d\n", (int)SP, (int)&new_pcb -> kstack[0], sizeof(struct STACK_type));
@@ -65,6 +98,7 @@ void Create_kthread(void (*thread)(void)) {
 
 }
 
+struct PCB *current_pcb;
 
 void init_proc() {
 
@@ -72,7 +106,8 @@ void init_proc() {
 
 	init = Proc;			//Proc[0] --> init
 	init -> next = init -> prev = init;
-	init -> flag = 0;
+	init -> flag = FALSE;
+	init -> pid = 0;
 	init -> status = STATUS_WAITING;
 	
 	//last_pcb = init;
@@ -80,9 +115,16 @@ void init_proc() {
 	for (i = 1; i < MAX_PROC; ++ i)
 		Proc[i].flag = 1;
 
+	/*
 	Create_kthread(process_A);
 	Create_kthread(process_B);
 	Create_kthread(process_C);
+	*/
+
+	Create_kthread(producer);
+	Create_kthread(consumer);
+
+
 	//last_pcb -> next = init -> next;
 
 	current_pcb = init;

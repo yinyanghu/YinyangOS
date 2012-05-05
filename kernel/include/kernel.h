@@ -7,6 +7,9 @@
 #include "memory.h"
 #include "irq.h"
 #include "console.h"
+#include "lock.h"
+#include "semaphore.h"
+#include "message.h"
 #include "process.h"
 #include "myproc.h"
 

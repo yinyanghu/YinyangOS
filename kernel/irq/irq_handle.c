@@ -32,9 +32,10 @@ add_irq_handle( int irq, void (*func)(void) ) {
 	handles[irq] = ptr;
 }
 
-void schedule();
+//void schedule();
 
 void irq_handle(struct TrapFrame *tf) {
+	enter_interrupt = TRUE;	
 	int irq = tf->irq;
 	current_pcb->esp = tf;
 
@@ -54,6 +55,8 @@ void irq_handle(struct TrapFrame *tf) {
 		}
 	}
 
+	enter_interrupt = FALSE;
+
 	schedule();
 }
 
@@ -72,6 +75,7 @@ void init_handle() {
 	add_irq_handle(0, set_need_sched);
 	add_irq_handle(1, keyboard_handler);
 	add_irq_handle(14, set_need_sched);
+	add_irq_handle(0x80, set_need_sched);
 }
 
 

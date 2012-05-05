@@ -1,7 +1,7 @@
 #ifndef __X86_IO_H__
 #define __X86_IO_H__
 
-#include "kernel.h"
+//#include "kernel.h"
 
 static inline uint_8
 in_byte(uint_16 port) {

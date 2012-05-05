@@ -1,7 +1,7 @@
 #ifndef __MEMORY_H__
 #define __MEMORY_H__
 
-#include "kernel.h"
+//#include "kernel.h"
 
 #define KOFFSET 0xC0000000
 

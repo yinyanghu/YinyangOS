@@ -1,7 +1,7 @@
 #ifndef __X86_CPU_H__
 #define __X86_CPU_H__
 
-#include "kernel.h"
+//#include "kernel.h"
 
 /* the Control Register 0 */
 struct CR0 {

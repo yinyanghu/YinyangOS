@@ -50,4 +50,5 @@ welcome(void) {
 	for (str = prompt; *str; str ++)
 		console_printc(*str);
 	printk("Hello Yinyanghu!\n");
+	init_producer_consumer();
 }

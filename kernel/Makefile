@@ -17,7 +17,10 @@ OBJS = main.o \
 	   irq/do_irq.o \
 	   process/util.o \
 	   process/schedule.o \
-	   myproc.o
+	   myproc.o \
+	   lock.o \
+	   semaphore.o \
+	   message.o
 
 kernel: $(OBJS) Makefile
 	$(LD) $(LDFLAGS) $(INCLUDE) -N -e os_init -Ttext 0xC0100000 -o kernel $(OBJS)

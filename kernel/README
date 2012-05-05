@@ -1,0 +1,34 @@
+关于设备驱动程序的一些说明
+
+我们有三个设备驱动程序：终端(tty)、磁盘(ide)和时钟(timer)。为了使这些驱动程序正确运行，请注意以下事项：
+
+每个设备驱动程序都有自己的进程号，用于发送消息。这些变量分别是TTY, IDE和TIMER，它们都是pid_t类型(int类型的别名)。你需要为这三个变量赋正确的值。
+
+tty和ide都对读写的长度做了限制并且没有检查，太长的写请求可能会导致缓冲区溢出。而文件系统应该保证不会引起这类的错误，请大家编程的时候注意。
+
+设备驱动程序依赖的函数有：
+1. send(pid_t pid, struct Message *m); 向目标进程发送一个消息，例如TTY或IDE。
+2. receive(pid_t pid, struct Message *m); pid可以是一个特殊的值ANY，你应该已经定义这个宏了，它能够接收来自任意源头的消息。
+3. add_irq_handle(irq, handle) 设备驱动程序会注册中断处理程序，有的设备会注册多个中断处理程序的接口。
+4. fetch_pcb(pid_t pid) 它返回一个进程的PCB。这个函数你迟早会用到，你应该已经实现了相对应的功能。
+5. copy_from_kernel和copy_to_kernel。在有用户进程时，这个函数用于用户地址空间和内核之间的数据复制，函数原型都是copy_??_kernel(PCB指针, 目标地址, 源地址, 长度)。由于目前只有内核，所以你只需要实现memcpy等价的功能就可以了。
+6. lock()和unlock()。对于设备驱动来说，lock()和unlock()的功能只是关中断和开中断就可以了，但为了今后实现的方便，我们仍然建议大家使用课上讲解过的lock和unlock。
+   
+最后看一下消息的格式。在我们的实现中，消息结构体的定义如下：
+
+struct Message {
+	pid_t src, dest;
+	uint_32 type;
+	union {
+		struct {
+			int_32 p1, p2, p3;
+		} int_msg;
+		struct {
+			pid_t pid;
+			void *buf;
+			uint_32 offset, length;
+		} dev_io;
+	};
+};
+
+时钟设备接收一种类型的消息，它的type是TIMER_SET_ALRM(具体数值由你们自行定义)，设置一个时钟，其中m.int_msg.p1是设置者的进程号，m.int_msg.p2是睡眠的秒数。其他两个设备都接受读写请求DEV_READ和DEV_WRITE，读/写操作完成后，将会发送消息给pid中所指的进程/线程。
