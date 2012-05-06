@@ -10,8 +10,10 @@
 #include "lock.h"
 #include "semaphore.h"
 #include "message.h"
+#include "driver.h"
 #include "process.h"
 #include "myproc.h"
+#include "test_proc.h"
 
 void vfprintf(void (*)(char), const char *, void **);
 

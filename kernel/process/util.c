@@ -42,6 +42,23 @@ inline int Find_Empty_PCB() {
 
 }
 
+
+
+struct PCB* fetch_pcb(pid_t pid) {
+	return (Proc + pid);
+}
+
+
+void copy_from_kernel(struct PCB *pcb_ptr, void *dest, void *src, int len) {
+	while (len --)
+		*(uint_8 *)(dest ++) = *(uint_8 *)(src ++);
+}
+
+void copy_to_kernel(struct PCB *pcb_ptr, void *dest, void *src, int len) {
+	while (len --)
+		*(uint_8 *)(dest ++) = *(uint_8 *)(src ++);
+}
+
 struct PCB *init;
 
 
@@ -84,7 +101,6 @@ void Create_kthread(void (*thread)(void)) {
 
 	init_message_pool(new_pcb);
 
-
 	
 	struct STACK_type *SP = (struct STACK_type*)((int)(new_pcb -> kstack + STACK_SIZE) - sizeof(struct STACK_type));
 	//panic("SP = %d\n, kstack = %d\n, size = %d\n", (int)SP, (int)&new_pcb -> kstack[0], sizeof(struct STACK_type));
@@ -114,17 +130,32 @@ void init_proc() {
 
 	for (i = 1; i < MAX_PROC; ++ i)
 		Proc[i].flag = 1;
-
-	/*
+#ifdef TEST_FUN
 	Create_kthread(process_A);
 	Create_kthread(process_B);
 	Create_kthread(process_C);
-	*/
+#endif
 
+/*
+#ifdef TEST_SEMAPHORE
 	Create_kthread(producer);
 	Create_kthread(consumer);
+#endif
+*/
 
+#ifdef TEST_TIMER
+	Create_kthread(timer_driver_thread);
+	TIMER = 1;
+	Create_kthread(test_timer);
+#endif
 
+#ifdef TEST_TTY
+	Create_kthread(tty_driver_thread);
+	TTY = 1;
+	Create_kthread(test_tty);
+#endif
+
+	
 	//last_pcb -> next = init -> next;
 
 	current_pcb = init;

@@ -1,7 +1,7 @@
 CC = gcc
 AS = gas
 LD = ld
-CFLAGS = -m32 -g -fno-pic -static -fno-strict-aliasing -fno-builtin -fno-stack-protector -Wall -Werror -O2 -I./include
+CFLAGS = -m32 -g -DTEST_TTY -fno-pic -static -fno-strict-aliasing -fno-builtin -fno-stack-protector -Wall -Werror -O2 -I./include
 
 LDFLAGS = -m elf_i386
 OBJCOPY = objcopy
@@ -20,7 +20,12 @@ OBJS = main.o \
 	   myproc.o \
 	   lock.o \
 	   semaphore.o \
-	   message.o
+	   message.o \
+	   timer.o \
+	   tty.o \
+	   test/test_timer.o \
+	   test/test_tty.o
+
 
 kernel: $(OBJS) Makefile
 	$(LD) $(LDFLAGS) $(INCLUDE) -N -e os_init -Ttext 0xC0100000 -o kernel $(OBJS)

@@ -14,7 +14,8 @@ struct PCB* find_next_live_process(void) {
 void schedule(void) {
 	if (need_sched)
 	{
-		current_pcb -> status = STATUS_WAITING;
+		if (current_pcb -> status == STATUS_RUNNING)
+			current_pcb -> status = STATUS_WAITING;
 		current_pcb = find_next_live_process();
 		current_pcb -> status = STATUS_RUNNING;
 		need_sched = FALSE;

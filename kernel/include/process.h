@@ -20,6 +20,8 @@ struct PCB {
 	struct Message_Pool_type	Msg_rec_Pool[Max_Message_Pool];	
 	//struct Message_Pool_type	Msg_ign_Pool[Max_Message_Pool];
 	struct Message_Pool_type	*Msg_rec, *Msg_ign;
+
+	uint_32				time_elapsed;
 };
 
 extern struct PCB Proc[MAX_PROC];
@@ -47,6 +49,9 @@ struct PCB* find_next_live_process(void);
 void schedule(void);
 
 
+struct PCB* fetch_pcb(pid_t pid);
+void copy_from_kernel(struct PCB *pcb_ptr, void *dest, void *src, int len);
+void copy_to_kernel(struct PCB *pcb_ptr, void *dest, void *src, int len);
 
 
 #endif

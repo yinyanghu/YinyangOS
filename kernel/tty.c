@@ -1,28 +1,7 @@
 #include "kernel.h"
 
-#define BACK          14
-#define ENTER         28
-#define LSHIFT_DOWN   42
-#define LSHIFT_UP     170
-#define RSHIFT_DOWN   54
-#define RSHIFT_UP     182
-#define CAPS_ON       58
-#define CAPS_OFF      186
-#define KEY_UP        72
-#define KEY_DOWN      80
-#define KEY_LEFT      75
-#define KEY_RIGHT     77
-
-#define NR_INPUT_BUF  256
-#define NR_OUTPUT_BUF 256
-#define NR_INPUT_POOL 1024
-
-#define MODE_CANONIC    1
-#define MODE_TERM     2
-
 pid_t TTY;
 
-void keyboard_intr(void);
 static char get_ascii(int);
 static void canonic_mode_getch(uint_32);
 static void canonic_mode_write(struct PCB *, void *, uint_32);
@@ -42,12 +21,6 @@ static int  cursor_pos = 0;
 static char input_pool[NR_INPUT_POOL];
 static int  f = 0, r = 0;
 
-struct ReadStack {
-	pid_t pid;
-	void *buf;
-	uint_32 length;
-	struct ReadStack *next;
-};
 static struct ReadStack read_pool[NR_PROCESS];
 static struct ReadStack *free, *top;
 static void init_read_stack(void);

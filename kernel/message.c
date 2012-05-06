@@ -10,13 +10,18 @@ struct Message_Pool_type* Find_Empty_Message(struct Message_Pool_type *Pool) {
 	return NULL;
 }
 
-void send(pid_t pid, struct Message_type *m) {
+void send(pid_t pid, struct Message *m) {
+
+#ifdef DEBUG
+printk("In send, from %d to %d\n", (enter_interrupt == TRUE) ? MSG_HARD_INTR : current_pcb -> pid, pid);
+#endif
 
 	lock();
 
 	struct PCB	*target_pcb = Proc + pid;
 
 	struct Message_Pool_type *new_msg = Find_Empty_Message(target_pcb -> Msg_rec_Pool);
+
 	if (new_msg == NULL)
 		panic("\nNo enough space for message passing!\n");
 
@@ -24,22 +29,25 @@ void send(pid_t pid, struct Message_type *m) {
 
 	new_msg -> msg = *m;
 
-	if (enter_interrupt)
-		(new_msg -> msg).src = PID_Hardware_IRQ;
+	if (enter_interrupt == TRUE)
+		(new_msg -> msg).src = MSG_HARD_INTR;
 	else
 		(new_msg -> msg).src = current_pcb -> pid;
 
 	(new_msg -> msg).dest = pid;
 
+	new_msg -> next = NULL;
+
 	if (target_pcb -> Msg_rec == NULL)
 	{
+#ifdef DEBUG
+printk("Exact NULL %d\n", target_pcb -> pid);
+#endif
 		target_pcb -> Msg_rec = new_msg;
-		target_pcb -> Msg_rec -> next = NULL;
-		target_pcb -> Msg_rec -> prev = new_msg;
+		target_pcb -> Msg_rec -> prev = target_pcb -> Msg_rec;
 	}
 	else
 	{
-		new_msg -> next = NULL;
 		target_pcb -> Msg_rec -> prev -> next = new_msg;
 		target_pcb -> Msg_rec -> prev = new_msg;
 	}
@@ -51,7 +59,11 @@ void send(pid_t pid, struct Message_type *m) {
 }
 
 
-void receive(pid_t pid, struct Message_type *m) {
+void receive(pid_t pid, struct Message *m) {
+
+#ifdef DEBUG
+printk("In receive, from %d\n", pid);
+#endif
 
 	struct Message_Pool_type	*ptr;
 
@@ -83,11 +95,18 @@ void receive(pid_t pid, struct Message_type *m) {
 		while (1)
 		{
 			Sem_P(&(current_pcb -> Msg_lock));
+#ifdef DEBUG
+printk("received\n");
+#endif
 
 			lock();
 
 			ptr = current_pcb -> Msg_rec;
 
+#ifdef DEBUG
+printk("fuck you %d\n", current_pcb -> pid);
+printk("Token = %d\n", (current_pcb -> Msg_lock).token);
+#endif
 			if (current_pcb -> Msg_rec -> next == NULL)
 			{
 				current_pcb -> Msg_rec = NULL;
@@ -97,6 +116,7 @@ void receive(pid_t pid, struct Message_type *m) {
 				current_pcb -> Msg_rec -> next -> prev = current_pcb -> Msg_rec -> prev;
 				current_pcb -> Msg_rec = current_pcb -> Msg_rec -> next;
 			}
+
 			unlock();
 
 			if (pid == ANY || pid == (ptr -> msg).src) break;

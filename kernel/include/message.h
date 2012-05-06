@@ -3,10 +3,10 @@
 
 #define Max_Message_Pool	128
 #define ANY			-1
-#define PID_Hardware_IRQ	-128
+#define MSG_HARD_INTR	-128
 //#define Message_Pool_Full	-1
 
-struct Message_type {
+struct Message {
 	pid_t	src, dest;
 	uint_32	type;
 	union {
@@ -24,7 +24,7 @@ struct Message_type {
 
 
 struct Message_Pool_type {
-	struct Message_type		msg;
+	struct Message			msg;
 	struct Message_Pool_type	*prev, *next;
 	boolean				flag;
 };
@@ -32,8 +32,8 @@ struct Message_Pool_type {
 
 struct Message_Pool_type* Find_Empty_Message(struct Message_Pool_type *Pool);
 
-void send(pid_t pid, struct Message_type *m);
-void receive(pid_t pid, struct Message_type *m);
+void send(pid_t pid, struct Message *m);
+void receive(pid_t pid, struct Message *m);
 
 
 #endif

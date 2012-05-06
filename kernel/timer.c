@@ -1,14 +1,8 @@
 #include "kernel.h"
 
-#define NR_PROC_TIME   5
 
 pid_t TIMER;
 
-struct Alarm {
-	pid_t pid;
-	int_32 remain_time;
-	struct Alarm *next;
-};
 static struct Alarm alarm_pool[NR_PROCESS];
 static struct Alarm *alarm_free, *alarm_queue;
 
@@ -20,13 +14,22 @@ static void pop_alarm(void);
 
 void
 timer_driver_thread(void) {
+#ifdef DEBUG
+printk("GOD!\n");
+#endif
 	static struct Message m;
 	init_100hz_timer();
 	init_alarm();
 	add_irq_handle(0, timer_intr);
 
 	while (TRUE) {
+#ifdef DEBUG
+printk("God want to receive\n");
+#endif
 		receive(ANY, &m);
+#ifdef DEBUG	
+printk("Rogar that!\n");
+#endif
 		switch (m.type) {
 			case TIMER_SET_ALRM:
 				lock();
@@ -38,6 +41,9 @@ timer_driver_thread(void) {
 
 static void
 timer_intr(void) {
+#ifdef DEBUG
+printk("Timer Interupt\n");
+#endif
 	static struct Message m;
 
 	current_pcb->time_elapsed ++;
@@ -46,10 +52,16 @@ timer_intr(void) {
 	}
 	if (alarm_queue != NULL) {
 		alarm_queue->remain_time --;
-		while (alarm_queue != NULL &&
-			   alarm_queue->remain_time <= 0) {
+		while (alarm_queue != NULL && alarm_queue->remain_time <= 0) {
 			m.type = TIMER_ALRM_FIRE;
+#ifdef DEBUG
+printk("God want to send to %d\n", alarm_queue -> pid);
+#endif
 			send(alarm_queue->pid, &m);
+#ifdef DEBUG
+printk("after send\n");
+#endif
+
 
 			pop_alarm();
 		}
@@ -113,6 +125,9 @@ new_alarm(pid_t pid, int_32 second) {
 
 static void
 pop_alarm(void) {
+#ifdef DEBUG
+printk("In Pop_alarm, head = %d\n", alarm_queue -> pid);
+#endif
 	struct Alarm *ptr;
 	ptr = alarm_queue;
 	alarm_queue = alarm_queue->next;
