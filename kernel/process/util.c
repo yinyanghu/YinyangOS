@@ -59,6 +59,10 @@ void copy_to_kernel(struct PCB *pcb_ptr, void *dest, void *src, int len) {
 		*(uint_8 *)(dest ++) = *(uint_8 *)(src ++);
 }
 
+
+
+
+
 struct PCB *init;
 
 
@@ -156,6 +160,32 @@ void init_proc() {
 #endif
 
 	
+#ifdef TEST_COMBINE
+	Create_kthread(timer_driver_thread);
+	TIMER = 1;
+	Create_kthread(tty_driver_thread);
+	TTY = 2;
+
+	Create_kthread(test_timer);
+	Create_kthread(test_tty);
+#endif
+
+
+	Create_kthread(timer_driver_thread);
+	TIMER = 1;
+	Create_kthread(tty_driver_thread);
+	TTY = 2;
+
+	Create_kthread(test_timer_f);
+	Create_kthread(test_timer_u);
+	Create_kthread(test_timer_c);
+	Create_kthread(test_timer_k);
+
+	Create_kthread(test_tty);
+
+
+
+
 	//last_pcb -> next = init -> next;
 
 	current_pcb = init;

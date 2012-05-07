@@ -4,6 +4,7 @@
 
 #define MAX_PROC		64
 #define PROC_FULL		-1
+#define FIND_FAILURE		-1
 #define STATUS_WAITING		0
 #define STATUS_SLEEPING		-1
 #define STATUS_RUNNING		1
@@ -14,6 +15,7 @@ struct PCB {
 	struct PCB			*next, *prev;
 	boolean				flag;
 	int				status;
+
 	pid_t				pid;
 
 	struct Sem_type			Msg_lock;

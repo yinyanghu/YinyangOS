@@ -102,7 +102,7 @@ get_ascii(int code) {
 	}
 
 	index = shift_level > 0;
-	if ( key_maps[0][code] >= 'a' && key_maps[0][code] <= 'z') {
+	if (key_maps[0][code] >= 'a' && key_maps[0][code] <= 'z') {
 		index ^= caps_on;
 	}
 	return key_maps[index][code];
