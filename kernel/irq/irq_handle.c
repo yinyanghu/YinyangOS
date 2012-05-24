@@ -64,25 +64,11 @@ void set_need_sched() {
 	need_sched = TRUE;
 }
 
-#ifdef TEST_FUN
-void keyboard_handler() {
-	color_panic("\nKeyboard!\n");
-}
-#endif
 
 void init_handle() {
 	int i;
 	for (i = 0; i < NR_IRQ; ++ i)
 		handles[i] = NULL;
-#ifdef TEST_TTY
-	add_irq_handle(0, set_need_sched);
-#endif
-
-#ifdef TEST_FUN
-	add_irq_handle(0, set_need_sched);
-	add_irq_handle(1, keyboard_handler);
-	add_irq_handle(14, set_need_sched);
-#endif
 
 	add_irq_handle(0x80, set_need_sched);
 }

@@ -2,11 +2,6 @@
 
 pid_t TTY;
 
-static char get_ascii(int);
-static void canonic_mode_getch(uint_32);
-static void canonic_mode_write(struct PCB *, void *, uint_32);
-static void canonic_wakeup_read(void);
-
 static int key_maps[2][256];
 static int shift_level = 0;
 static boolean caps_on = FALSE;
@@ -23,15 +18,27 @@ static int  f = 0, r = 0;
 
 static struct ReadStack read_pool[NR_PROCESS];
 static struct ReadStack *free, *top;
+
+
 static void init_read_stack(void);
 static void read_stack_push(pid_t, void *, uint_32);
+
+static char get_ascii(int);
+static void canonic_mode_getch(uint_32);
+static void canonic_mode_write(struct PCB *, void *, uint_32);
+static void canonic_wakeup_read(void);
+
+
+void tty_driver_initialize(void) {
+
+	add_irq_handle(1, keyboard_intr);
+	init_read_stack();
+}
+	
 
 void
 tty_driver_thread(void) {
 	static struct Message m;
-
-	add_irq_handle(1, keyboard_intr);
-	init_read_stack();
 
 	while (TRUE) {
 		receive(ANY, &m);

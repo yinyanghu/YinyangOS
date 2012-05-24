@@ -12,7 +12,7 @@ void test_tty(void) {
 
 		m.type = DEV_READ;
 		m.dev_io.pid = current_pcb -> pid;
-		m.dev_io.length = Buffer_Size; // -1;
+		m.dev_io.length = Buffer_Size;// - 1;
 		m.dev_io.buf = buf;
 		
 

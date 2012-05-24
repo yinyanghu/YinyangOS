@@ -1,9 +1,11 @@
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
-
 #define NR_PROC_TIME	5
 #define NR_PROCESS	32
+
+#define TIMER_SET_ALRM	0xA
+#define TIMER_ALRM_FIRE	0xB
 
 struct Alarm {
 	pid_t pid;
@@ -13,6 +15,7 @@ struct Alarm {
 
 extern pid_t TIMER;
 
+void timer_driver_initialize(void);
 void timer_driver_thread(void);
 
 #endif

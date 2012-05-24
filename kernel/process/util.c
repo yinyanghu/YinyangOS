@@ -3,24 +3,24 @@
 struct PCB Proc[MAX_PROC];
 
 struct EFLAGS {
-	uint_32 CF      :1;
-	uint_32 pad1    :1;
-	uint_32 PF      :1;
-	uint_32 pad0_1  :1;                                                                                                                        
-	uint_32 AF      :1;
+	uint_32 CF	:1;
+	uint_32 pad1	:1;
+	uint_32 PF	:1;
+	uint_32 pad0_1	:1;
+	uint_32 AF	:1;
 	uint_32 pad0_2  :1;
-	uint_32 ZF      :1;
-	uint_32 SF      :1;
-	uint_32 TF      :1;
-	uint_32 IF      :1;
-	uint_32 DF      :1;
-	uint_32 OF      :1;
-	uint_32 IO_PL   :2;
-	uint_32 NT      :1;
-	uint_32 pad0_3  :1;
-	uint_32 RF      :1;
-	uint_32 VM      :1;
-	uint_32 offset  :14;
+	uint_32 ZF	:1;
+	uint_32 SF	:1;
+	uint_32 TF	:1;
+	uint_32 IF	:1;
+	uint_32 DF	:1;
+	uint_32 OF	:1;
+	uint_32 IO_PL	:2;
+	uint_32 NT	:1;
+	uint_32 pad0_3	:1;
+	uint_32 RF	:1;
+	uint_32 VM	:1;
+	uint_32 offset	:14;
 };
 
 struct STACK_type {
@@ -61,10 +61,7 @@ void copy_to_kernel(struct PCB *pcb_ptr, void *dest, void *src, int len) {
 
 
 
-
-
 struct PCB *init;
-
 
 
 void init_message_pool(struct PCB *ptr) {
@@ -103,6 +100,8 @@ void Create_kthread(void (*thread)(void)) {
 	new_pcb -> pid = new;
 	new_pcb -> flag = FALSE;
 
+	new_pcb -> time_elapsed = 0;
+
 	init_message_pool(new_pcb);
 
 	
@@ -134,54 +133,26 @@ void init_proc() {
 
 	for (i = 1; i < MAX_PROC; ++ i)
 		Proc[i].flag = 1;
-#ifdef TEST_FUN
-	Create_kthread(process_A);
-	Create_kthread(process_B);
-	Create_kthread(process_C);
-#endif
-
-/*
-#ifdef TEST_SEMAPHORE
-	Create_kthread(producer);
-	Create_kthread(consumer);
-#endif
-*/
-
-#ifdef TEST_TIMER
-	Create_kthread(timer_driver_thread);
-	TIMER = 1;
-	Create_kthread(test_timer);
-#endif
-
-#ifdef TEST_TTY
-	Create_kthread(tty_driver_thread);
-	TTY = 1;
-	Create_kthread(test_tty);
-#endif
-
-	
-#ifdef TEST_COMBINE
-	Create_kthread(timer_driver_thread);
-	TIMER = 1;
-	Create_kthread(tty_driver_thread);
-	TTY = 2;
-
-	Create_kthread(test_timer);
-	Create_kthread(test_tty);
-#endif
-
 
 	Create_kthread(timer_driver_thread);
 	TIMER = 1;
 	Create_kthread(tty_driver_thread);
 	TTY = 2;
+	Create_kthread(ide_driver_thread);
+	IDE = 3;
+	Create_kthread(FileManager);
+	FM = 4;
 
+	Create_kthread(test_ide);
+
+	/*
 	Create_kthread(test_timer_f);
 	Create_kthread(test_timer_u);
 	Create_kthread(test_timer_c);
 	Create_kthread(test_timer_k);
 
 	Create_kthread(test_tty);
+	*/
 
 
 

@@ -30,6 +30,9 @@ os_init(void) {
 	/* Initialize the intel 8259 PIC. */
 	init_intr();
 
+	/* Initialize the drivers. */
+	init_drivers();
+
 	/* Initialize process table. You should fill this. */
 	init_proc();
 	

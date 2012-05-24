@@ -3,5 +3,6 @@
 
 #include "test_timer.h"
 #include "test_tty.h"
+#include "test_ide.h"
 
 #endif

@@ -1,22 +1,14 @@
 #include "kernel.h"
 
-#define IDE_PORT_CTRL   0x3F6
-#define IDE_PORT_BASE   0x1F0
-#define IDE_READY       1
-#define IDE_WRITEBACK   2
-#define WRITEBACK_TIME  100  /* writeback cache for every 1 second */
-
-#define NR_SEC_CACHE    127   /* sector cache is a direct address hash */
-
 pid_t IDE;
 
 static void ide_intr(void);
 static void time_intr(void);
 
-static void issue_read(void);
+static inline void issue_read(void);
 static void do_read(void *);
 static void do_write(void *);
-static void ide_prepare(uint_32);
+static inline void ide_prepare(uint_32);
 static uint_8 read_byte(uint_32);
 static void write_byte(uint_32, uint_8);
 
@@ -26,15 +18,20 @@ struct SectorCache {
 	uint_8  content[512];
 };
 static struct SectorCache cache[NR_SEC_CACHE];
-static void cache_init(void);
+static inline void cache_init(void);
+
+
+void ide_driver_initialize(void) {
+	
+	add_irq_handle(14, ide_intr);
+	add_irq_handle(0 , time_intr);
+	cache_init();
+}
+
 
 void
 ide_driver_thread(void) {
 	static struct Message m;
-
-	add_irq_handle(14, ide_intr);
-	add_irq_handle(0 , time_intr);
-	cache_init();
 
 	while (TRUE) {
 		receive(ANY, &m);
@@ -75,12 +72,15 @@ ide_driver_thread(void) {
 	}
 }
 
+
 static void
 ide_intr(void) {
 	static struct Message m;
 	m.type = IDE_READY;
 	send(IDE, &m);
 }
+
+
 static void
 time_intr(void) {
 	static struct Message m;
@@ -92,7 +92,8 @@ time_intr(void) {
 	}
 }
 
-static void
+
+static inline void
 ide_prepare(uint_32 sector) {
 	int r;
 	r = in_byte(IDE_PORT_BASE + 7);
@@ -107,10 +108,13 @@ ide_prepare(uint_32 sector) {
 	out_byte(IDE_PORT_BASE + 6, 0xE0 | ((sector >> 24) & 0xFF));
 }
 
-static void
+
+
+static inline void
 issue_read(void) {
 	out_byte(IDE_PORT_BASE + 7, 0x20);
 }
+
 
 static void
 do_read(void *buf) {
@@ -138,7 +142,7 @@ do_write(void *buf) {
 	} while (m.type != IDE_READY);
 }
 
-static void
+static inline void
 cache_init(void) {
 	int i;
 	for (i = 0; i < NR_SEC_CACHE; i ++) {

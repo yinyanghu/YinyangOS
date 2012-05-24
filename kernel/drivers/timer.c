@@ -12,15 +12,20 @@ static void init_alarm(void);
 static void new_alarm(pid_t, int_32);
 static void pop_alarm(void);
 
+
+void timer_driver_initialize(void) {
+
+	init_100hz_timer();
+	init_alarm();
+	add_irq_handle(0, timer_intr);
+}
+
 void
 timer_driver_thread(void) {
 #ifdef DEBUG
 printk("GOD!\n");
 #endif
 	static struct Message m;
-	init_100hz_timer();
-	init_alarm();
-	add_irq_handle(0, timer_intr);
 
 	while (TRUE) {
 #ifdef DEBUG

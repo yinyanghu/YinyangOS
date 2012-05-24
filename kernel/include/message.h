@@ -18,7 +18,11 @@ struct Message {
 			void	*buf;
 			uint_32	offset, length;
 		} dev_io;
-
+		struct {
+			uint_32	file_name;
+			void	*buf;
+			uint_32 offset, length;
+		} fm_msg;
 	};
 };
 

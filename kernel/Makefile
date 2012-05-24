@@ -17,14 +17,18 @@ OBJS = main.o \
 	   irq/do_irq.o \
 	   process/util.o \
 	   process/schedule.o \
-	   myproc.o \
+	   test/myproc.o \
 	   lock.o \
 	   semaphore.o \
 	   message.o \
-	   timer.o \
-	   tty.o \
+	   drivers/timer.o \
+	   drivers/tty.o \
+	   drivers/ide.o \
+	   drivers/init_drivers.o \
+	   fm.o \
 	   test/test_timer.o \
-	   test/test_tty.o
+	   test/test_tty.o \
+	   test/test_ide.o
 
 
 kernel: $(OBJS) Makefile
@@ -37,3 +41,5 @@ clean:
 	rm -f memory/*.d memory/*.o
 	rm -f irq/*.d irq/*.o
 	rm -f process/*.d process/*.o
+	rm -f test/*.d test/*.o
+	rm -f drivers/*.d drivers/*.o
