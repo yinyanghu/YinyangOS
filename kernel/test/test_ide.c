@@ -6,7 +6,8 @@ void test_ide(void) {
 	char ch[256];
 
 	int i, j;
-	while (TRUE) {
+	int total = 1000;
+	while (total --) {
 
 		for (i = 0; i < 10; ++ i)
 			for (j = 1; j <= 3; ++ j)
@@ -24,6 +25,14 @@ void test_ide(void) {
 			}
 
 	}
+
+	int total_time = 0;
+	for (i = 0; i <= 5; ++ i)
+		total_time += Proc[i].time_elapsed;
+	
+	
+	printk("Finish!\n%d\n", total_time);
+	panic("gg");
 }
 
 

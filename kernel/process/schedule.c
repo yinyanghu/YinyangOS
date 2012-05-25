@@ -7,7 +7,13 @@ boolean	need_sched = TRUE;
 
 struct PCB* find_next_live_process(void) {
 	struct PCB *p;
-	for (p = current_pcb -> next; p != NULL && p -> status != STATUS_WAITING; p = p -> next);
+	if (preempt_proc != NULL)
+	{
+		p = preempt_proc;	
+		preempt_proc = NULL;
+	}
+	else
+		for (p = current_pcb -> next; p != NULL && p -> status != STATUS_WAITING; p = p -> next);
 	return p;
 }
 

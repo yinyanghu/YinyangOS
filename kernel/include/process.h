@@ -26,10 +26,13 @@ struct PCB {
 	uint_32				time_elapsed;
 };
 
-extern struct PCB Proc[MAX_PROC];
+extern struct PCB Proc[];
 
 extern struct PCB *current_pcb;
 //extern struct PCB *last_pcb;
+
+extern struct PCB *preempt_proc;
+
 extern struct PCB *init;
 
 extern boolean need_sched;

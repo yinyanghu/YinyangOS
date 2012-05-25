@@ -63,6 +63,7 @@ void copy_to_kernel(struct PCB *pcb_ptr, void *dest, void *src, int len) {
 
 struct PCB *init;
 
+struct PCB *preempt_proc = NULL;
 
 void init_message_pool(struct PCB *ptr) {
 
