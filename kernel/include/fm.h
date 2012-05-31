@@ -5,6 +5,6 @@
 
 extern pid_t	FM;
 
-void FileManager(void);
+void FileManagement(void);
 
 #endif

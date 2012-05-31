@@ -2,7 +2,7 @@
 #define __PROCESS_H__
 
 
-#define MAX_PROC		64
+#define MAX_PROC		32
 #define PROC_FULL		-1
 #define FIND_FAILURE		-1
 #define STATUS_WAITING		0
@@ -24,6 +24,9 @@ struct PCB {
 	struct Message_Pool_type	*Msg_rec, *Msg_ign;
 
 	uint_32				time_elapsed;
+
+	struct PageDirectoryEntry	pagedir[NR_PDE_ENTRY] align_to_page;
+	struct CR3			cr3;
 };
 
 extern struct PCB Proc[];

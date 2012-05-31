@@ -8,7 +8,7 @@ pid_t	FM;
 
 static uint_32 do_read(uint_32 file_name, char *buffer, uint_32 offset, uint_32 length);
 
-void FileManager(void) {
+void FileManagement(void) {
 
 	static struct Message m;
 	static uint_32 read_size;

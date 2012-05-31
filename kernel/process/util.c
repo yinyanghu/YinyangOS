@@ -141,7 +141,7 @@ void init_proc() {
 	TTY = 2;
 	Create_kthread(ide_driver_thread);
 	IDE = 3;
-	Create_kthread(FileManager);
+	Create_kthread(FileManagement);
 	FM = 4;
 
 	Create_kthread(test_ide);
