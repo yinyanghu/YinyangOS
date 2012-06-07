@@ -35,8 +35,14 @@ add_irq_handle( int irq, void (*func)(void) ) {
 //void schedule();
 
 void irq_handle(struct TrapFrame *tf) {
-	enter_interrupt = TRUE;	
+//	asm volatile("cli");
+//	printk("*********************************** %d\n", global_lock_counter);
+//	lock();
 	int irq = tf->irq;
+//	printk("***************** %d\n", enter_interrupt);
+
+//	enter_interrupt = TRUE;	
+
 	current_pcb->esp = tf;
 
 	if (irq < 0) {
@@ -55,14 +61,32 @@ void irq_handle(struct TrapFrame *tf) {
 		}
 	}
 
-	enter_interrupt = FALSE;
+	//unlock();
 
-	schedule();
+	//lock();
+	//schedule();
+	//unlock();
+	//-- global_lock_counter;
+//	enter_interrupt = FALSE;
+	
 }
 
+void int_handle(struct TrapFrame *tf) {
+
+	//printk("begin\n");	
+
+	current_pcb->esp = tf;
+
+	need_sched = TRUE;	
+	
+	//printk("end\n");	
+}
+
+/*
 void set_need_sched() {
 	need_sched = TRUE;
 }
+*/
 
 
 void init_handle() {
@@ -70,7 +94,7 @@ void init_handle() {
 	for (i = 0; i < NR_IRQ; ++ i)
 		handles[i] = NULL;
 
-	add_irq_handle(0x80, set_need_sched);
+//	add_irq_handle(0, set_need_sched);
 }
 
 

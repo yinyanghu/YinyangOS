@@ -3,6 +3,8 @@
 struct PageDirectoryEntry kpagedir[NR_PDE_ENTRY] align_to_page;
 struct PageTableEntry kpagetable[USER_MEM_HIGH / PAGE_SIZE] align_to_page;
 
+uint_32	Kernel_CR3_pdb;
+
 /* Build a page table for the kernel */
 void
 init_page(void) {
@@ -37,6 +39,9 @@ init_page(void) {
 	load_cr0(&cr0);
 	cr0.paging = 1;
 	save_cr0(&cr0);
+
+	/* Backup Kernel CR3 */
+	Kernel_CR3_pdb = ((uint_32)pdir) >> 12;
 }
 
 /* GDT in the kernel's memory, whoes virtual memory is greater than

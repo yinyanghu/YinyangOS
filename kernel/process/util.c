@@ -33,8 +33,7 @@ struct STACK_type {
 
 
 
-//static
-inline int Find_Empty_PCB() {
+int Find_Empty_PCB() {
 	int i;
 	for (i = 1; i < MAX_PROC; ++ i)
 		if (Proc[i].flag == TRUE) return i;
@@ -49,21 +48,83 @@ struct PCB* fetch_pcb(pid_t pid) {
 }
 
 
-void copy_from_kernel(struct PCB *pcb_ptr, void *dest, void *src, int len) {
-	while (len --)
-		*(uint_8 *)(dest ++) = *(uint_8 *)(src ++);
+void copy_from_kernel(struct PCB *pcb, void *dest, void *src, int length) {
+	uint_32 pde = ((uint_32)dest) >> 22;
+	uint_32 pte = (((uint_32)dest) >> 12) & 0x3FF;
+	uint_32 pa = ((uint_32)dest) & 0xFFF;
+
+	struct PageDirectoryEntry	*pdir;
+	struct PageTableEntry		*pent;
+
+	void				*ptr;
+
+	pdir = (struct PageDirectoryEntry *)((pcb -> cr3).page_directory_base << 12);
+	pent = (struct PageTableEntry *)((pdir[pde] -> page_frame) << 12);
+
+	int i;
+	while (length != 0)
+	{
+		ptr = (void *)(pent[pte] -> page_frame) << 12;
+
+		while (pa < PAGE_SIZE)
+		{
+			*((uint_8 *)ptr + (pa ++)) = *(uint_8 *)(src ++);
+			-- length;
+			if (length == 0) break;
+		}
+		pa = 0;
+		++ pte;
+		if (pte == NR_PTE_ENTRY)
+		{
+			pte = 0;
+			++ pde;
+			pent = (struct PageTableEntry *)((pdir[pde] -> page_frame) << 12);
+		}
+
+	}
 }
 
-void copy_to_kernel(struct PCB *pcb_ptr, void *dest, void *src, int len) {
-	while (len --)
-		*(uint_8 *)(dest ++) = *(uint_8 *)(src ++);
+void copy_to_kernel(struct PCB *pcb, void *dest, void *src, int length) {
+	uint_32 pde = ((uint_32)src) >> 22;
+	uint_32 pte = (((uint_32)src) >> 12) & 0x3FF;
+	uint_32 pa = ((uint_32)src) & 0xFFF;
+
+	struct PageDirectoryEntry	*pdir;
+	struct PageTableEntry		*pent;
+
+	void				*ptr;
+
+	pdir = (struct PageDirectoryEntry *)((pcb -> cr3).page_directory_base << 12);
+	pent = (struct PageTableEntry *)((pdir[pde] -> page_frame) << 12);
+
+	int i;
+	while (length != 0)
+	{
+		ptr = (void *)(pent[pte] -> page_frame) << 12;
+
+		while (pa < PAGE_SIZE)
+		{
+			*(uint_8 *)(dest ++) = *((uint_8 *)ptr + (pa ++));
+			-- length;
+			if (length == 0) break;
+		}
+		pa = 0;
+		++ pte;
+		if (pte == NR_PTE_ENTRY)
+		{
+			pte = 0;
+			++ pde;
+			pent = (struct PageTableEntry *)((pdir[pde] -> page_frame) << 12);
+		}
+
+	}
 }
 
 
 
 struct PCB *init;
 
-struct PCB *preempt_proc = NULL;
+//struct PCB *preempt_proc = NULL;
 
 void init_message_pool(struct PCB *ptr) {
 
@@ -84,7 +145,7 @@ void Create_kthread(void (*thread)(void)) {
 	if (new == PROC_FULL)
 		panic("Process Table is Full!\n");
 
-	struct PCB* new_pcb = Proc + new; 
+	struct PCB *new_pcb = Proc + new; 
 	new_pcb -> next = init;
 	new_pcb -> prev = init -> prev;
 	init -> prev -> next = new_pcb;
@@ -103,9 +164,13 @@ void Create_kthread(void (*thread)(void)) {
 
 	new_pcb -> time_elapsed = 0;
 
+
+	*(uint_32 *)&(new_pcb -> cr3) = 0;
+	(new_pcb -> cr3).page_directory_base = Kernel_CR3_pdb;
+
+
 	init_message_pool(new_pcb);
 
-	
 	struct STACK_type *SP = (struct STACK_type*)((int)(new_pcb -> kstack + STACK_SIZE) - sizeof(struct STACK_type));
 	//panic("SP = %d\n, kstack = %d\n, size = %d\n", (int)SP, (int)&new_pcb -> kstack[0], sizeof(struct STACK_type));
 
@@ -129,11 +194,16 @@ void init_proc() {
 	init -> flag = FALSE;
 	init -> pid = 0;
 	init -> status = STATUS_WAITING;
+	init -> time_elapsed = 0;
+	init_message_pool(init);
+
+	*(uint_32*)&(init -> cr3) = 0;
+	(init -> cr3).page_directory_base = Kernel_CR3_pdb;
 	
-	//last_pcb = init;
 
 	for (i = 1; i < MAX_PROC; ++ i)
 		Proc[i].flag = 1;
+
 
 	Create_kthread(timer_driver_thread);
 	TIMER = 1;
@@ -143,22 +213,9 @@ void init_proc() {
 	IDE = 3;
 	Create_kthread(FileManagement);
 	FM = 4;
+	Create_kthread(MemoryManagement);
+	MM = 5;
 
-	Create_kthread(test_ide);
-
-	/*
-	Create_kthread(test_timer_f);
-	Create_kthread(test_timer_u);
-	Create_kthread(test_timer_c);
-	Create_kthread(test_timer_k);
-
-	Create_kthread(test_tty);
-	*/
-
-
-
-
-	//last_pcb -> next = init -> next;
 
 	current_pcb = init;
 }

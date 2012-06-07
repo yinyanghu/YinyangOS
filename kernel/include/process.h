@@ -34,7 +34,7 @@ extern struct PCB Proc[];
 extern struct PCB *current_pcb;
 //extern struct PCB *last_pcb;
 
-extern struct PCB *preempt_proc;
+//extern struct PCB *preempt_proc;
 
 extern struct PCB *init;
 

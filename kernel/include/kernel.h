@@ -13,6 +13,7 @@
 #include "drivers/driver.h"
 #include "process.h"
 #include "fm.h"
+#include "mm.h"
 #include "test/myproc.h"
 #include "test/test_proc.h"
 

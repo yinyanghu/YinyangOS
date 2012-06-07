@@ -26,9 +26,10 @@ OBJS = main.o \
 	   drivers/ide.o \
 	   drivers/init_drivers.o \
 	   fm.o \
+	   mm.o \
 	   test/test_timer.o \
 	   test/test_tty.o \
-	   test/test_ide.o
+	   test/test_ide.o \
 
 
 kernel: $(OBJS) Makefile

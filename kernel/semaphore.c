@@ -44,7 +44,7 @@ void Sem_V(struct Sem_type *sem)
 	{
 		-- (sem -> queue_tail);
 		(Proc + (sem -> queue[sem -> queue_tail])) -> status = STATUS_WAITING;
-		preempt_proc = Proc + (sem -> queue[sem -> queue_tail]);
+		//preempt_proc = Proc + (sem -> queue[sem -> queue_tail]);
 	}
 	else
 		++ (sem -> token);	

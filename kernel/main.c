@@ -2,6 +2,7 @@
 
 
 void welcome(void);
+void init_service(void);
 
 void
 os_init(void) {
@@ -35,6 +36,9 @@ os_init(void) {
 
 	/* Initialize process table. You should fill this. */
 	init_proc();
+
+	/* Initialize the services. */
+	init_service();
 	
 	welcome();
 
@@ -44,6 +48,10 @@ os_init(void) {
 	while (1) {
 		idle_cpu();
 	}
+}
+
+void init_service(void) {
+	init_mm();
 }
 
 void

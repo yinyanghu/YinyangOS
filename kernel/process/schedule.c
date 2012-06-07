@@ -7,23 +7,28 @@ boolean	need_sched = TRUE;
 
 struct PCB* find_next_live_process(void) {
 	struct PCB *p;
+	/*
 	if (preempt_proc != NULL)
 	{
 		p = preempt_proc;	
 		preempt_proc = NULL;
 	}
-	else
-		for (p = current_pcb -> next; p != NULL && p -> status != STATUS_WAITING; p = p -> next);
+	else*/
+	for (p = current_pcb -> next; p != NULL && p -> status != STATUS_WAITING; p = p -> next);
 	return p;
 }
 
 void schedule(void) {
+	lock();
+	//printk("acm\n");
 	if (need_sched)
 	{
 		if (current_pcb -> status == STATUS_RUNNING)
 			current_pcb -> status = STATUS_WAITING;
 		current_pcb = find_next_live_process();
+	//	printk("%d\n", current_pcb -> pid);
 		current_pcb -> status = STATUS_RUNNING;
 		need_sched = FALSE;
 	}
+	unlock();
 }

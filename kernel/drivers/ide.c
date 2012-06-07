@@ -49,6 +49,8 @@ ide_driver_thread(void) {
 				panic("IDE interrupt is leaking");
 			}
 		} else if (m.type == DEV_READ) {
+			//printk("IDE driver receive request!\n");
+			//printk("rr\n");
 			uint_32 i, data;
 			struct PCB *pcb = fetch_pcb(m.src);
 			for (i = 0; i < m.dev_io.length; i ++) {
@@ -58,6 +60,7 @@ ide_driver_thread(void) {
 			m.type = -1;
 			m.int_msg.p1 = i;
 			send(m.src, &m);
+			//printk("ss\n");
 		} else if (m.type == DEV_WRITE) {
 			uint_32 i, data;
 			struct PCB *pcb = fetch_pcb(m.src);

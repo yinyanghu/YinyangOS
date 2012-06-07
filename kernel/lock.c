@@ -1,8 +1,8 @@
 #include "kernel.h"
 
-int global_lock_counter = 0;
+uint_32 global_lock_counter = 0;
 
-boolean enter_interrupt = FALSE;
+uint_32 enter_interrupt = 0;
 
 void lock(void)
 {
@@ -15,7 +15,7 @@ void lock(void)
 void unlock(void)
 {
 	-- global_lock_counter;
-	if (global_lock_counter == 0 && !enter_interrupt)
+	if (global_lock_counter == 0 && enter_interrupt == 0)
 		enable_interrupt();
 }
 

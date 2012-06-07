@@ -12,6 +12,8 @@ void make_pte(struct PageTableEntry *, void *);
 
 extern struct PageDirectoryEntry kpagedir[];
 
+extern uint_32 Kernel_CR3_pdb;
+
 void init_page(void);
 void init_segment(void);
 

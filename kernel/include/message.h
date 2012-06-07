@@ -23,6 +23,10 @@ struct Message {
 			void	*buf;
 			uint_32 offset, length;
 		} fm_msg;
+		struct {
+			struct PCB	*target_pcb;
+			uint_32		start, length;
+		} mm_msg;
 	};
 };
 

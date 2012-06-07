@@ -13,7 +13,7 @@ struct Message_Pool_type* Find_Empty_Message(struct Message_Pool_type *Pool) {
 void send(pid_t pid, struct Message *m) {
 
 #ifdef DEBUG
-printk("In send, from %d to %d\n", (enter_interrupt == TRUE) ? MSG_HARD_INTR : current_pcb -> pid, pid);
+printk("In send, from %d to %d\n", (enter_interrupt == 1) ? MSG_HARD_INTR : current_pcb -> pid, pid);
 #endif
 
 	lock();
@@ -29,12 +29,14 @@ printk("In send, from %d to %d\n", (enter_interrupt == TRUE) ? MSG_HARD_INTR : c
 
 	new_msg -> msg = *m;
 
-	if (enter_interrupt == TRUE)
+	if (enter_interrupt == 1)
 		(new_msg -> msg).src = MSG_HARD_INTR;
 	else
 		(new_msg -> msg).src = current_pcb -> pid;
 
 	(new_msg -> msg).dest = pid;
+
+	//printk("from %d to %d\n", (new_msg -> msg).src, (new_msg -> msg).dest);
 
 	new_msg -> next = NULL;
 

@@ -1,13 +1,29 @@
 #include "kernel.h"
 
+/*
+void test_ide(void) {
+
+	int *p;
+	while (1)
+	{
+		p = &IDE;
+		printk("First %d\n", *p);
+		p -= KOFFSET;
+		printk("Second %d\n", *p);
+	}
+
+}
+
+*/
+
 void test_ide(void) {
 	static struct Message m;
 	
 	char ch[256];
 
 	int i, j;
-	int total = 1000;
-	while (total --) {
+	//int total = 1000;
+	while (1) {
 
 		for (i = 0; i < 10; ++ i)
 			for (j = 1; j <= 3; ++ j)
@@ -26,6 +42,7 @@ void test_ide(void) {
 
 	}
 
+	/*
 	int total_time = 0;
 	for (i = 0; i <= 5; ++ i)
 		total_time += Proc[i].time_elapsed;
@@ -33,6 +50,6 @@ void test_ide(void) {
 	
 	printk("Finish!\n%d\n", total_time);
 	panic("gg");
+	*/
 }
-
 

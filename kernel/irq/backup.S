@@ -14,7 +14,7 @@
 .globl vec13; vec13: pushl $13; jmp asm_do_irq
 .globl vec14; vec14: pushl $14; jmp asm_do_irq
 
-.globl vecsys; vecsys: push $128; jmp asm_do_irq
+.globl vecsys; vecsys: pushl $1128; jmp asm_do_irq
 
 .globl irq0; irq0: pushl $1000; jmp asm_do_irq
 .globl irq1; irq1: pushl $1001; jmp asm_do_irq
@@ -25,52 +25,16 @@ irq_empty: pushl $-1; jmp asm_do_irq
 
 # current_pcb is the memory address of variable current_pcb
 .extern current_pcb
-.extern enter_interrupt
 
 .globl asm_do_irq
-.globl asm_do_int
 .extern irq_handle
-.extern int_handle
-.extern schedule
-
 
 asm_do_irq:
-	
-	movl $1, enter_interrupt
+	#cli
 	pushal
 
 	pushl %esp
 	call irq_handle
-
-	call schedule
-
-	movl (current_pcb), %eax
-	movl (%eax), %esp
-
-	popal
-	addl $4, %esp
-
-	movl $0, enter_interrupt 
-	iret
-
-asm_do_int:
-
-	pushal
-
-	push %esp
-	call int_handle
-	
-
-	call schedule
-
-	movl (current_pcb), %eax
-	movl (%eax), %esp
-
-	popal
-	addl $4, %esp
-
-	iret
-
 
 # YOU NEED TO SWITCH STACK TO current_pcb->esp
 # SO YOU NEED TWO ADD TWO LINES OF INTERRUPT CODE
@@ -82,3 +46,11 @@ asm_do_int:
 	#addl $4, %esp # when you finish the task, this should be removed
 
 
+	#cli
+	movl (current_pcb), %esi
+	movl (%esi), %esp
+
+	popal
+	addl $4, %esp
+
+	iret
