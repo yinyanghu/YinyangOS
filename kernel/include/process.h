@@ -11,6 +11,7 @@
 
 struct PCB {
 	void				*esp;
+	void				*kstack_top;
 	uint_8				kstack[STACK_SIZE];
 	struct PCB			*next, *prev;
 	boolean				flag;

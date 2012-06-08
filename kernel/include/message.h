@@ -27,6 +27,9 @@ struct Message {
 			struct PCB	*target_pcb;
 			uint_32		start, length;
 		} mm_msg;
+		struct {
+			uint_32		file_name;
+		} pm_msg;
 	};
 };
 

@@ -182,7 +182,7 @@ void Create_kthread(void (*thread)(void)) {
 
 	uint_32 key;
 
-	//%eflags
+	//eflags
 	key = (1 << 9); 
 	Push_Stack_4Byte(&stack_ptr, key);
 	//printk("key = %d", key);
@@ -271,6 +271,8 @@ void init_proc() {
 	FM = 4;
 	Create_kthread(MemoryManagement);
 	MM = 5;
+	Create_kthread(ProcessManagement);
+	PM = 6;
 
 	Create_kthread(test_ide);
 

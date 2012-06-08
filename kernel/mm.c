@@ -219,6 +219,8 @@ void init_user_page(struct PCB *pcb) {
 
 //	uint_32				PT_offset;
 
+	printk("enter init_user_page\n");
+
 	pdir = (struct PageDirectoryEntry *)(pcb -> pagedir);
 	//pent = (struct PageTableEntry *)va_to_pa(pcb -> pagetable);
 	
@@ -231,6 +233,7 @@ void init_user_page(struct PCB *pcb) {
 	for (i = 0; i < NR_PDE_ENTRY; ++ i)
 		make_invalid_pde(pdir + i);
 
+	printk("initialize page table.................Successful!\n");
 	//for kernel space
 	for (i = 0; i < USER_MEM_LOW / PD_SIZE; ++ i)
 	{
@@ -244,14 +247,19 @@ void init_user_page(struct PCB *pcb) {
 		}
 	}
 
+	printk("set kernel space page table...............Successful\n");
+
 	//for user space
 	
 	//allocate a user stack, below 0xC0000000, 4KB
 	allocate_page(pcb, (void *)0xC0000000 - 1, 1);
 	
+	printk("set user stack page table...............Successful\n");
 
 	*(uint_32*)&(pcb -> cr3) = 0;
 	(pcb -> cr3).page_directory_base = ((uint_32)va_to_pa(pdir)) >> 12;
+	printk("set CR3 register...............Successful\n");
+	printk("exit init_user_page..............Successful\n");
 }
 
 /*

@@ -14,6 +14,7 @@
 #include "process.h"
 #include "fm.h"
 #include "mm.h"
+#include "pm.h"
 #include "test/myproc.h"
 #include "test/test_proc.h"
 

@@ -44,8 +44,8 @@ asm_do_irq:
 	jae irq_in_kernel
 
 #switch to kernel stack
-	#movl (current_pcb), %eax
-	#movl (%eax), %esp
+	movl (current_pcb), %eax
+	movl 4(%eax), %esp
 
 irq_in_kernel:
 
@@ -77,8 +77,8 @@ asm_do_int:
 	jae int_in_kernel
 
 #switch to kernel stack
-	#movl (current_pcb), %eax
-	#movl (%eax), %esp
+	movl (current_pcb), %eax
+	movl 4(%eax), %esp
 
 int_in_kernel:
 

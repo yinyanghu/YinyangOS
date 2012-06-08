@@ -1,7 +1,7 @@
 CC = gcc
 AS = gas
 LD = ld
-CFLAGS = -m32 -g -fno-pic -static -fno-strict-aliasing -fno-builtin -fno-stack-protector -Wall -Werror -O2 -I./include
+CFLAGS = -m32 -g -fno-pic -static -fno-strict-aliasing -fno-builtin -fno-stack-protector -Wall -Werror -I./include
 
 LDFLAGS = -m elf_i386
 OBJCOPY = objcopy
@@ -27,6 +27,7 @@ OBJS = main.o \
 	   drivers/init_drivers.o \
 	   fm.o \
 	   mm.o \
+	   pm.o \
 	   test/test_timer.o \
 	   test/test_tty.o \
 	   test/test_ide.o \

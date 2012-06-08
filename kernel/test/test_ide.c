@@ -1,21 +1,28 @@
 #include "kernel.h"
 
-/*
+uint_32 hack;
+
 void test_ide(void) {
 
-	int *p;
+	static struct Message m;
+
+	m.type = PM_LOAD_PROC;
+	m.pm_msg.file_name = 1;
+
+	send(PM, &m);
+	receive(PM, &m);
+	
+	hack = 0;
+	printk("hack address = %x\n", &hack);
 	while (1)
 	{
-		p = &IDE;
-		printk("First %d\n", *p);
-		p -= KOFFSET;
-		printk("Second %d\n", *p);
+		printk("%d", hack);
+		idle_cpu();
 	}
-
 }
 
-*/
 
+/*
 void test_ide(void) {
 	static struct Message m;
 	
@@ -42,14 +49,12 @@ void test_ide(void) {
 
 	}
 
-	/*
-	int total_time = 0;
-	for (i = 0; i <= 5; ++ i)
-		total_time += Proc[i].time_elapsed;
-	
-	
-	printk("Finish!\n%d\n", total_time);
-	panic("gg");
-	*/
+//	int total_time = 0;
+//	for (i = 0; i <= 5; ++ i)
+//		total_time += Proc[i].time_elapsed;
+//	
+//	
+//	printk("Finish!\n%d\n", total_time);
+//	panic("gg");
 }
-
+*/

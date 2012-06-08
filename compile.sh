@@ -5,4 +5,4 @@ make clean
 make
 cd ..
 cat boot/bootblock kernel/kernel > os.img
-./makefs os.img aaa bbb ccc
+./makefs os.img init_proc
