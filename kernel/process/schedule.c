@@ -20,7 +20,6 @@ struct PCB* find_next_live_process(void) {
 
 void schedule(void) {
 	lock();
-	//printk("acm\n");
 	if (need_sched)
 	{
 		if (current_pcb -> status == STATUS_RUNNING)
@@ -28,7 +27,9 @@ void schedule(void) {
 		current_pcb = find_next_live_process();
 	//	printk("%d\n", current_pcb -> pid);
 		current_pcb -> status = STATUS_RUNNING;
+		save_cr3(&(current_pcb -> cr3));
 		need_sched = FALSE;
 	}
 	unlock();
 }
+

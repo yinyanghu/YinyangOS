@@ -14,7 +14,7 @@
 .globl vec13; vec13: pushl $13; jmp asm_do_irq
 .globl vec14; vec14: pushl $14; jmp asm_do_irq
 
-.globl vecsys; vecsys: push $128; jmp asm_do_irq
+.globl vecsys; vecsys: push $128; jmp asm_do_int
 
 .globl irq0; irq0: pushl $1000; jmp asm_do_irq
 .globl irq1; irq1: pushl $1001; jmp asm_do_irq
@@ -33,19 +33,33 @@ irq_empty: pushl $-1; jmp asm_do_irq
 .extern int_handle
 .extern schedule
 
-
 asm_do_irq:
 	
 	movl $1, enter_interrupt
 	pushal
 
-	pushl %esp
+	movl %esp, %ebx
+	cmpl $0xC0000000, %esp
+
+	jae irq_in_kernel
+
+#switch to kernel stack
+	#movl (current_pcb), %eax
+	#movl (%eax), %esp
+
+irq_in_kernel:
+
+	pushl %ebx
 	call irq_handle
+
+	movl (current_pcb), %eax
+	movl %esp, (%eax)
 
 	call schedule
 
 	movl (current_pcb), %eax
 	movl (%eax), %esp
+	popl %esp
 
 	popal
 	addl $4, %esp
@@ -57,14 +71,28 @@ asm_do_int:
 
 	pushal
 
-	push %esp
+	movl %esp, %ebx
+	cmpl $0xC0000000, %esp
+
+	jae int_in_kernel
+
+#switch to kernel stack
+	#movl (current_pcb), %eax
+	#movl (%eax), %esp
+
+int_in_kernel:
+
+	pushl %ebx
 	call int_handle
 	
+	movl (current_pcb), %eax
+	movl %esp, (%eax)
 
 	call schedule
 
 	movl (current_pcb), %eax
 	movl (%eax), %esp
+	popl %esp
 
 	popal
 	addl $4, %esp

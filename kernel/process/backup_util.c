@@ -2,7 +2,6 @@
 
 struct PCB Proc[MAX_PROC];
 
-/*
 struct EFLAGS {
 	uint_32 CF	:1;
 	uint_32 pad1	:1;
@@ -24,6 +23,7 @@ struct EFLAGS {
 	uint_32 offset	:14;
 };
 
+/*
 struct STACK_type {
 	uint_32 esp;
 	struct TrapFrame tf;
@@ -137,9 +137,8 @@ void init_message_pool(struct PCB *ptr) {
 }
 
 
-void Push_Stack_4Byte(uint_8 **Addr, uint_32 Key) {
-	*((uint_32 *)(*Addr)) = Key;	
-	*Addr -= 4;
+void Push_Stack(uint_32 *Addr, uint_32 *Key) {
+	*Addr = Key;	
 }
 
 
@@ -168,57 +167,12 @@ void Create_kthread(void (*thread)(void)) {
 	new_pcb -> time_elapsed = 0;
 
 
-	*(uint_32 *)&(new_pcb -> cr3) = 0;
+	(uint_32 *)&(new_pcb -> cr3) = 0;
 	(new_pcb -> cr3).page_directory_base = Kernel_CR3_pdb;
 
 
 	init_message_pool(new_pcb);
 
-	//printk("kernel stack : %x\n", new_pcb -> kstack);
-	uint_8 *stack_ptr = (uint_8 *)((uint_32)(new_pcb -> kstack) + STACK_SIZE - 4);
-	//printk("init stack pointer = %x\n", (uint_32)stack_ptr);
-
-	
-
-	uint_32 key;
-
-	//%eflags
-	key = (1 << 9); 
-	Push_Stack_4Byte(&stack_ptr, key);
-	//printk("key = %d", key);
-	//printk("stack pointer = %x\n", (uint_32)stack_ptr);
-	//printk("eflags = %d\n", *((uint_32 *)(stack_ptr + 4)));
-	
-	//%cs
-	key = 8;
-	Push_Stack_4Byte(&stack_ptr, key);
-	
-	//%eip
-	key = (uint_32)thread;
-	Push_Stack_4Byte(&stack_ptr, key);
-	
-	//TrapFrame
-	uint_32 i;
-	key = 0;
-	for (i = 0; i < 9; ++ i)
-		Push_Stack_4Byte(&stack_ptr, key);
-
-	//%esp & PCB -> esp
-	new_pcb -> esp = (void *)((uint_32)stack_ptr);
-	Push_Stack_4Byte(&stack_ptr, (uint_32)stack_ptr + 4);
-
-	/*
-	for (i = (uint_32)new_pcb -> kstack + STACK_SIZE - 4; i > (uint_32)new_pcb -> kstack + STACK_SIZE - 64; i = i - 4)
-		if (*(uint_32 *)i > 0xC0000000)
-			printk("%x ", *(uint_32 *)i);
-		else
-			printk("%d ", *(uint_32 *)i);
-	*/
-
-	//panic("\nFinish\n");
-
-
-/*
 	struct STACK_type *SP = (struct STACK_type*)(((uint_32)new_pcb -> kstack + STACK_SIZE) - 4 * sizeof(struct STACK_type));
 	//panic("SP = %d\n, kstack = %d\n, size = %d\n", (int)SP, (int)&new_pcb -> kstack[0], sizeof(struct STACK_type));
 
@@ -228,7 +182,6 @@ void Create_kthread(void (*thread)(void)) {
 	SP -> eip = (uint_32)thread;
 	SP -> cs = 8;
 	SP -> eflags.IF = 1;
-*/
 
 	/*
 	uint_32 esp;

@@ -56,8 +56,10 @@ void Create_uthread(uint_32 file_name) {
 	load_init_proc(file_name, new_pcb)
 
 	//kernel stack initialize
+	//	None
 	
 	//user stack initialize
+	//	Completed in load_init_proc
 
 }
 

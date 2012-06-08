@@ -43,7 +43,7 @@ void irq_handle(struct TrapFrame *tf) {
 
 //	enter_interrupt = TRUE;	
 
-	current_pcb->esp = tf;
+	//current_pcb->esp = tf;
 
 	if (irq < 0) {
 		panic("Unhandled exception!");
@@ -75,7 +75,7 @@ void int_handle(struct TrapFrame *tf) {
 
 	//printk("begin\n");	
 
-	current_pcb->esp = tf;
+	//current_pcb->esp = tf;
 
 	need_sched = TRUE;	
 	

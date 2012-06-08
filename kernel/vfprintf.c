@@ -5,8 +5,9 @@
 void
 vfprintf(void (*printer)(char), const char *ctl, void **args) {
 
-	int temp[MAX_LEN];
-	int dec;
+	uint_32 temp[MAX_LEN];
+	int_32 dec;
+	uint_32 hex;
 	char *ch;
 	int i;
 	
@@ -16,7 +17,7 @@ vfprintf(void (*printer)(char), const char *ctl, void **args) {
 		else
 			switch (*(++ ctl))
 			{
-				case 'd':	dec = *((int *)args ++);
+				case 'd':	dec = *((int_32 *)args ++);
 						if (dec == 0) printer('0');
 						else
 						{
@@ -30,6 +31,16 @@ vfprintf(void (*printer)(char), const char *ctl, void **args) {
 							for (-- i; i >= 0; -- i)
 								printer(temp[i] + 48);
 						}
+						break;
+
+				case 'x':	hex = *((uint_32 *)args ++);
+						for (i = 0; hex != 0; hex = hex >> 4, ++ i)
+							temp[i] = hex & 0xF;
+						for (-- i; i >= 0; -- i)
+							if (temp[i] < 10)
+								printer(temp[i] + 48);
+							else
+								printer(temp[i] - 10 + 65);
 						break;
 
 				case '%':	printer('%');

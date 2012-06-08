@@ -33,14 +33,23 @@ os_init(void) {
 
 	/* Initialize the drivers. */
 	init_drivers();
+	
+	/* Initialize the services. */
+	init_service();
 
 	/* Initialize process table. You should fill this. */
 	init_proc();
 
-	/* Initialize the services. */
-	init_service();
-	
 	welcome();
+
+	//uint_32 stack_ptr;
+	//asm volatile("pushl %esp");
+	//asm volatile("movl %%esp, %0" : "=r"(stack_ptr));
+	//printk("%d\n", stack_ptr);
+	//printk("%d\n", *(uint_32 *)(stack_ptr + 4));
+	//panic("sss");
+	//current_pcb -> esp = (void *)(stack_ptr + 4);
+	asm volatile("addl $0xC0000000, %esp");
 
 	enable_interrupt();
 
