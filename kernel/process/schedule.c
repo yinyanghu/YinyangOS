@@ -25,11 +25,12 @@ void schedule(void) {
 		if (current_pcb -> status == STATUS_RUNNING)
 			current_pcb -> status = STATUS_WAITING;
 		current_pcb = find_next_live_process();
-	//	printk("%d\n", current_pcb -> pid);
+//		printk("%d\n", current_pcb -> pid);
 		current_pcb -> status = STATUS_RUNNING;
-		printk("Next PCB = %d\n", current_pcb -> pid);
-		printk("CR3 = %x\n", *((uint_32 *)(&(current_pcb -> cr3))));
-		//save_cr3(&(current_pcb -> cr3));
+//		printk("Next PCB = %d\n", current_pcb -> pid);
+//		printk("CR3 = %x\n", *((uint_32 *)(&(current_pcb -> cr3))));
+//		save_cr3(&(current_pcb -> cr3));
+/*
 		if (*((uint_32 *)&(Proc[6].cr3)) < 1000) 
 		{
 			int i;
@@ -39,8 +40,9 @@ void schedule(void) {
 			panic("why, why?\n");
 		}
 		printk("Saving CR3...........\n");
+*/
 		asm volatile ("movl %0, %%cr3" : : "r"(*((uint_32 *)(&(current_pcb -> cr3)))));
-		printk("Saving CR3...........Successful!\n");
+//		printk("Saving CR3...........Successful!\n");
 		need_sched = FALSE;
 	}
 	//unlock();

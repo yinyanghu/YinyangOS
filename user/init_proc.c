@@ -2,7 +2,7 @@ int *c;
 
 int main(void)
 {
-	c = (int *)0xC0203704;
+	c = (int *)0xC01E3704;
 	while (1)
 	{
 		*c = (*c + 1) % 10;

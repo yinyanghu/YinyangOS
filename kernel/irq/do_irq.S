@@ -44,7 +44,6 @@ asm_do_irq:
 	jae irq_in_kernel
 
 #switch to kernel stack
-	#hlt
 	movl (current_pcb), %eax
 	movl 4(%eax), %esp
 
@@ -82,8 +81,6 @@ asm_do_int:
 	jae int_in_kernel
 
 #switch to kernel stack
-	#cli
-	#hlt
 	movl (current_pcb), %eax
 	movl 4(%eax), %esp
 
@@ -120,5 +117,4 @@ int_in_kernel:
 #     3. YOU MAY FLUSH ANY GENRAL PURPOSE REGISTER AS YOU WISH
 #     4. REGISTERS ARE REFERENCED BY "%", SUCH AS %esp
 	#addl $4, %esp # when you finish the task, this should be removed
-
 

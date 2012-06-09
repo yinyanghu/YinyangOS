@@ -32,6 +32,7 @@ void Sem_P(struct Sem_type *sem)
 		sem -> queue[sem -> queue_tail ++] = current_pcb -> pid;
 		current_pcb -> status = STATUS_SLEEPING;
 		unlock();
+		asm volatile("movl $0, %eax");	//INT80_SCHEDULE
 		asm volatile("int $0x80");
 	}
 }

@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	freopen("osfs.img", "w", stdout);		
+	freopen("os.img", "w", stdout);		
 
 	int i, counter;
 	char c;

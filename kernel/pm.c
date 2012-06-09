@@ -2,13 +2,12 @@
 
 pid_t	PM;
 
+static char buf[4200];
+static char segment_buf[4200];
 
 void load_init_proc(uint_32 file_name, struct PCB *pcb) {
 
 	static struct Message m;
-
-static char buf[4200];
-static char segment_buf[4200];
 
 	struct ELFHeader *elf;
 	struct ProgramHeader *ph, *eph;

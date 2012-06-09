@@ -43,7 +43,7 @@ void irq_handle(struct TrapFrame *tf) {
 
 //	enter_interrupt = TRUE;	
 
-	current_pcb -> esp = tf;
+	//current_pcb -> esp = tf;
 
 	if (irq < 0) {
 		panic("Unhandled exception!");
@@ -73,12 +73,38 @@ void irq_handle(struct TrapFrame *tf) {
 
 void int_handle(struct TrapFrame *tf) {
 
+	static struct Message m;
 	//printk("begin\n");	
 
-	current_pcb -> esp = tf;
+	//current_pcb -> esp = tf;
 
-	need_sched = TRUE;	
-	
+	switch (tf -> eax) {
+		case INT80_SCHEDULE:
+			need_sched = TRUE;
+			break;
+
+		case INT80_READ:
+			m.type = DEV_READ;
+			m.dev_io.pid = current_pcb -> pid;
+			m.dev_io.buf = (void *)tf -> ebx;
+			m.dev_io.length = tf -> ecx;
+			send(TTY, &m);
+			receive(TTY, &m);
+			break;
+
+		case INT80_WRITE:
+			m.type = DEV_WRITE;
+			m.dev_io.pid = current_pcb -> pid;
+			m.dev_io.buf = (void *)tf -> ebx;
+			m.dev_io.length = tf -> ecx;
+			send(TTY, &m);
+			receive(TTY, &m);
+			break;
+
+		default: 
+			panic("Unknown int $0x80!\n");
+	}
+
 	//printk("end\n");	
 }
 

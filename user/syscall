@@ -1,0 +1,14 @@
+INT80_SCHEDULE
+	%eax = 0x0
+	
+INT80_READ
+	%eax = 0x1
+	%ebx = &buf
+	%ecx = length
+	read(char *buf, int len)
+	
+INT80_WRITE
+	%eax = 0x2
+	%ebx = &buf
+	%ecx = length
+	write(char *buf, int len)
