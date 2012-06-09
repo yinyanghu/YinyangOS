@@ -19,7 +19,7 @@ struct PCB* find_next_live_process(void) {
 }
 
 void schedule(void) {
-	lock();
+	//lock();
 	if (need_sched)
 	{
 		if (current_pcb -> status == STATUS_RUNNING)
@@ -27,9 +27,22 @@ void schedule(void) {
 		current_pcb = find_next_live_process();
 	//	printk("%d\n", current_pcb -> pid);
 		current_pcb -> status = STATUS_RUNNING;
-		save_cr3(&(current_pcb -> cr3));
+		printk("Next PCB = %d\n", current_pcb -> pid);
+		printk("CR3 = %x\n", *((uint_32 *)(&(current_pcb -> cr3))));
+		//save_cr3(&(current_pcb -> cr3));
+		if (*((uint_32 *)&(Proc[6].cr3)) < 1000) 
+		{
+			int i;
+			for (i = 0; i < 8; ++ i)
+				printk("Process %d, CR3 = %x\n", i, *((uint_32 *)(&((Proc + i) -> cr3))));
+				
+			panic("why, why?\n");
+		}
+		printk("Saving CR3...........\n");
+		asm volatile ("movl %0, %%cr3" : : "r"(*((uint_32 *)(&(current_pcb -> cr3)))));
+		printk("Saving CR3...........Successful!\n");
 		need_sched = FALSE;
 	}
-	unlock();
+	//unlock();
 }
 

@@ -17,6 +17,7 @@ struct PCB {
 	boolean				flag;
 	int				status;
 
+	struct CR3			cr3;
 	pid_t				pid;
 
 	struct Sem_type			Msg_lock;
@@ -27,7 +28,6 @@ struct PCB {
 	uint_32				time_elapsed;
 
 	struct PageDirectoryEntry	pagedir[NR_PDE_ENTRY] align_to_page;
-	struct CR3			cr3;
 };
 
 extern struct PCB Proc[];

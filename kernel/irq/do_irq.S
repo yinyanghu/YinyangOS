@@ -44,6 +44,7 @@ asm_do_irq:
 	jae irq_in_kernel
 
 #switch to kernel stack
+	#hlt
 	movl (current_pcb), %eax
 	movl 4(%eax), %esp
 
@@ -56,6 +57,10 @@ irq_in_kernel:
 	movl %esp, (%eax)
 
 	call schedule
+
+	#movl (current_pcb), %eax
+	#movl 8(%eax), %ebx
+	#movl %ebx, %cr3
 
 	movl (current_pcb), %eax
 	movl (%eax), %esp
@@ -77,6 +82,8 @@ asm_do_int:
 	jae int_in_kernel
 
 #switch to kernel stack
+	#cli
+	#hlt
 	movl (current_pcb), %eax
 	movl 4(%eax), %esp
 
@@ -85,10 +92,15 @@ int_in_kernel:
 	pushl %ebx
 	call int_handle
 	
+	cli
 	movl (current_pcb), %eax
 	movl %esp, (%eax)
 
 	call schedule
+	
+	#movl (current_pcb), %eax
+	#movl 8(%eax), %ebx
+	#movl %ebx, %cr3
 
 	movl (current_pcb), %eax
 	movl (%eax), %esp

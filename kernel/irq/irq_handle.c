@@ -38,12 +38,12 @@ void irq_handle(struct TrapFrame *tf) {
 //	asm volatile("cli");
 //	printk("*********************************** %d\n", global_lock_counter);
 //	lock();
-	int irq = tf->irq;
+	int irq = tf -> irq;
 //	printk("***************** %d\n", enter_interrupt);
 
 //	enter_interrupt = TRUE;	
 
-	//current_pcb->esp = tf;
+	current_pcb -> esp = tf;
 
 	if (irq < 0) {
 		panic("Unhandled exception!");
@@ -75,7 +75,7 @@ void int_handle(struct TrapFrame *tf) {
 
 	//printk("begin\n");	
 
-	//current_pcb->esp = tf;
+	current_pcb -> esp = tf;
 
 	need_sched = TRUE;	
 	

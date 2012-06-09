@@ -2,12 +2,13 @@
 
 pid_t	PM;
 
+
 void load_init_proc(uint_32 file_name, struct PCB *pcb) {
 
 	static struct Message m;
 
-	char buf[4200];
-	char segment_buf[4200];
+static char buf[4200];
+static char segment_buf[4200];
 
 	struct ELFHeader *elf;
 	struct ProgramHeader *ph, *eph;
@@ -23,8 +24,10 @@ void load_init_proc(uint_32 file_name, struct PCB *pcb) {
 	m.fm_msg.length = 4096;
 
 	send(FM, &m);
+	//panic("sb");
 	receive(FM, &m);
 	printk("received ...........Successful\n");
+	//panic("sb\n");
  
 	printk("Read ELF header\n"); 
 	elf = (struct ELFHeader *)buf;
@@ -135,6 +138,8 @@ void Create_uthread(uint_32 file_name) {
 	//	Completed in load_init_proc
 
 	//Ready to Schedule
+	
+	printk("ready to schedule................!!!!\n");
 	lock();
 
 	new_pcb -> next = init;

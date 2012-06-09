@@ -18,9 +18,11 @@ void FileManagement(void) {
 		if (m.type == FM_READ)
 		{
 			read_size = do_read(m.fm_msg.file_name, m.fm_msg.buf, m.fm_msg.offset, m.fm_msg.length);
+	//	panic("notify!\n");
 			m.type = -1;
 			m.int_msg.p1 = read_size;
 			send(m.src, &m);
+			printk("send to %d\n", m.src);
 		}
 	}
 

@@ -169,7 +169,7 @@ void Create_kthread(void (*thread)(void)) {
 
 
 	*(uint_32 *)&(new_pcb -> cr3) = 0;
-	(new_pcb -> cr3).page_directory_base = Kernel_CR3_pdb;
+	(new_pcb -> cr3).page_directory_base = ((uint_32)va_to_pa(kpagedir)) >> 12;
 
 
 	init_message_pool(new_pcb);
@@ -207,13 +207,15 @@ void Create_kthread(void (*thread)(void)) {
 	new_pcb -> esp = (void *)((uint_32)stack_ptr);
 	Push_Stack_4Byte(&stack_ptr, (uint_32)stack_ptr + 4);
 
-	/*
+	
 	for (i = (uint_32)new_pcb -> kstack + STACK_SIZE - 4; i > (uint_32)new_pcb -> kstack + STACK_SIZE - 64; i = i - 4)
 		if (*(uint_32 *)i > 0xC0000000)
 			printk("%x ", *(uint_32 *)i);
 		else
 			printk("%d ", *(uint_32 *)i);
-	*/
+
+	printk("\n");
+	
 
 	//panic("\nFinish\n");
 
@@ -254,7 +256,7 @@ void init_proc() {
 	init_message_pool(init);
 
 	*(uint_32*)&(init -> cr3) = 0;
-	(init -> cr3).page_directory_base = Kernel_CR3_pdb;
+	(init -> cr3).page_directory_base = ((uint_32)va_to_pa(kpagedir)) >> 12;
 	
 
 	for (i = 1; i < MAX_PROC; ++ i)
@@ -276,6 +278,10 @@ void init_proc() {
 
 	Create_kthread(test_ide);
 
+			for (i = 0; i < 8; ++ i)
+				printk("Process %d, CR3 = %x\n", i, *((uint_32 *)(&((Proc + i) -> cr3))));
+			printk("============================\n");
+//	panic("Stop!\n");
 	current_pcb = init;
 }
 
