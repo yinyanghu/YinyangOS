@@ -67,13 +67,14 @@ void irq_handle(struct TrapFrame *tf) {
 	//schedule();
 	//unlock();
 	//-- global_lock_counter;
-//	enter_interrupt = FALSE;
-	
+	//enter_interrupt = FALSE;
 }
+
 
 void int_handle(struct TrapFrame *tf) {
 
 	static struct Message m;
+
 	//printk("begin\n");	
 
 	//current_pcb -> esp = tf;
@@ -81,6 +82,7 @@ void int_handle(struct TrapFrame *tf) {
 	switch (tf -> eax) {
 		case INT80_SCHEDULE:
 			need_sched = TRUE;
+			tf -> eax = 0;
 			break;
 
 		case INT80_READ:
@@ -90,6 +92,7 @@ void int_handle(struct TrapFrame *tf) {
 			m.dev_io.length = tf -> ecx;
 			send(TTY, &m);
 			receive(TTY, &m);
+			tf -> eax = m.int_msg.p1;
 			break;
 
 		case INT80_WRITE:
@@ -99,14 +102,54 @@ void int_handle(struct TrapFrame *tf) {
 			m.dev_io.length = tf -> ecx;
 			send(TTY, &m);
 			receive(TTY, &m);
+			tf -> eax = m.int_msg.p1;
+			break;
+
+		case INT80_SLEEP:
+			m.type = TIMER_SET_ALRM;
+			m.int_msg.p1 = current_pcb -> pid;
+			m.int_msg.p2 = tf -> ebx;
+			send(TIMER, &m);
+			receive(TIMER, &m);
+			tf -> eax = 0;
+			break;
+
+		case INT80_EXIT:
+			color_printk("Enter Int $0x80 Exiting System Call..................OK\n");
+			m.type = PM_EXIT_PROC;
+			m.pm_msg.pid = current_pcb -> pid;
+			m.pm_msg.p1 = tf -> ebx;
+			send(PM, &m);
+			receive(PM, &m);
+			break;
+
+		case INT80_GETPID:
+			tf -> eax = current_pcb -> pid;
+			break;
+
+		case INT80_WAITPID:
+			m.type = PM_WAITPID;
+			m.pm_msg.pid = current_pcb -> pid;
+			m.pm_msg.p1 = tf -> ebx;
+			send(PM, &m);
+			receive(PM, &m);
+			tf -> eax = m.pm_msg.p1;
+			break;
+
+		case INT80_FORK:
+			m.type = PM_FORK;
+			m.pm_msg.pid = current_pcb -> pid;
+			send(PM, &m);
+			receive(PM, &m);
+			tf -> eax = m.pm_msg.p1;
 			break;
 
 		default: 
 			panic("Unknown int $0x80!\n");
 	}
-
-	//printk("end\n");	
 }
+
+
 
 /*
 void set_need_sched() {
@@ -115,7 +158,7 @@ void set_need_sched() {
 */
 
 
-void init_handle() {
+void init_handle(void) {
 	int i;
 	for (i = 0; i < NR_IRQ; ++ i)
 		handles[i] = NULL;

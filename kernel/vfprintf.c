@@ -1,9 +1,8 @@
 #include "kernel.h"
 
-#define MAX_LEN 10
+#define MAX_LEN		12
 
-void
-vfprintf(void (*printer)(char), const char *ctl, void **args) {
+void vfprintf(void (*printer)(char), const char *ctl, void **args) {
 
 	uint_32 temp[MAX_LEN];
 	int_32 dec;

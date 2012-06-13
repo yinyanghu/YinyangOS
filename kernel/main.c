@@ -53,21 +53,30 @@ os_init(void) {
 
 	enable_interrupt();
 
+	/* load init user process */
+	Create_uthread(1);
+	Create_uthread(2);
+
+
 	/* This context now becomes the idle proess. */
 	while (1) {
+//		printk("Yinyanghu OS\n");
 		idle_cpu();
 	}
 }
 
 void init_service(void) {
-	init_mm();
+	init_MM();
+	init_PM();
 }
 
-void
-welcome(void) {
+void welcome(void) {
+	color_printk("Welcome to Yinyanghu OS!\n");
+	color_printk("Hello Yinyanghu!\n");
+	/*
 	static char prompt[] = "Hello, OS World!\n";
 	const char *str;
 	for (str = prompt; *str; str ++)
 		console_printc(*str);
-	printk("Hello Yinyanghu!\n");
+	*/
 }

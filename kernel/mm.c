@@ -5,11 +5,13 @@
 pid_t	MM;
 
 
-boolean Ppage_flag[NR_PPAGE_ENTRY];
+uint_8 Ppage_flag[NR_PPAGE_ENTRY];
 
-void allocate_page(struct PCB *pcb, void *start, uint_32 length);
+void allocate_page(struct PCB *, void *, uint_32);
 
-void free_page(struct PCB *pcb, void *start, uint_32 length);
+void free_page(struct PCB *, void *, uint_32);
+
+void copy_page(struct PCB *, struct PCB *);
 
 void MemoryManagement(void) {
 
@@ -17,26 +19,41 @@ void MemoryManagement(void) {
 
 	while (TRUE) {
 		receive(ANY, &m);
-		if (m.type == MM_ALLOCATE)
+		switch (m.type)
 		{
-			allocate_page(m.mm_msg.target_pcb, (void *)m.mm_msg.start, m.mm_msg.length);
-			m.type = -1;
-			send(m.src, &m);
+			case MM_ALLOCATE:
+				allocate_page(m.mm_msg.target_pcb, (void *)m.mm_msg.start, m.mm_msg.length);
+				m.type = -1;
+				send(m.src, &m);
+				break;
+
+			case MM_FREE:
+				free_page(m.mm_msg.target_pcb, (void *)m.mm_msg.start, m.mm_msg.length);
+				m.type = -1;
+				send(m.src, &m);
+				break;
+
+			case MM_EXIT_PROC:
+				exit_page(m.mm_msg.target_pcb);
+				m.type = -1;
+				send(m.src, &m);
+				break;
+
+			case MM_COPY:
+				copy_page(m.mm_msg.source_pcb, m.mm_msg.target_pcb);
+				m.type = -1;
+				send(m.src, &m);
+				break;
 		}
-		else if (m.type == MM_FREE)
-		{
-			free_page(m.mm_msg.target_pcb, (void *)m.mm_msg.start, m.mm_msg.length);
-			m.type = -1;
-			send(m.src, &m);
-		}
+
 	}
 
 }
 
-void init_mm(void) {
-	int i;
+void init_MM(void) {
+	static int_32	i;
 	for (i = 0; i < NR_PPAGE_ENTRY; ++ i)
-		Ppage_flag[i] = TRUE;
+		Ppage_flag[i] = 0;
 
 }
 
@@ -56,11 +73,11 @@ static inline uint_32 pa_to_id(uint_32 pa) {
 //allocate physical memory, exclude kernel space, 16MB --> 128MB
 //need better algorithm!
 static inline void * allocate_memory(void) {
-	int i;
+	static int_32	i;
 	for (i = 0; i < NR_PPAGE_ENTRY; ++ i)
-		if (Ppage_flag[i] == TRUE)
+		if (Ppage_flag[i] == 0)
 		{
-			Ppage_flag[i] = FALSE;
+			Ppage_flag[i] = 1;
 			return (void *)id_to_pa(i);
 		}
 	panic("Physical Page is full!\n");
@@ -70,7 +87,16 @@ static inline void * allocate_memory(void) {
 //free physical memory
 //need better algorithm!
 static inline void free_memory(void *addr) {
-	Ppage_flag[pa_to_id((uint_32)addr)] = TRUE;
+	-- Ppage_flag[pa_to_id((uint_32)addr)];
+}
+
+//copy physical memory from source address to target address
+//unit = 4KB
+static inline void copy_memory(void *src, void *dest) {
+	int_32	i;	
+	for (i = 0; i < (PAGE_SIZE >> 2); ++ i)
+		*(uint_32 *)(src + i) = *(uint_32 *)(dest + i);
+
 }
 
 
@@ -93,17 +119,17 @@ void allocate_page(struct PCB *pcb, void *start, uint_32 length) {
 	uint_32 pa = (pte & ~0xFFF) | ((uint_32)start & 0xFFF);
 	*/
 	
-	struct PageDirectoryEntry	*pdir;
-	struct PageTableEntry		*pent, *init_ptr;
+	static struct PageDirectoryEntry	*pdir;
+	static struct PageTableEntry		*pent, *init_ptr;
 
 	uint_32 pde = ((uint_32)start) >> 22;
 	uint_32 pte = (((uint_32)start) >> 12) & 0x3FF;
 
 	pdir = (struct PageDirectoryEntry *)(pcb -> pagedir);
 
-	void				*addr;
+	static void		*addr;
 
-	int i;
+	static int_32	i;
 	
 	while (length != 0)
 	{
@@ -141,6 +167,63 @@ void allocate_page(struct PCB *pcb, void *start, uint_32 length) {
 	
 }
 
+void exit_page(struct PCB *pcb) {
+	
+	static struct PageDirectoryEntry	*pdir;
+	static struct PageTableEntry		*pent;
+
+	static int_32	i, j;
+
+	pdir = (struct PageDirectoryEntry *)(pcb -> pagedir);
+
+	for (i = 0; i < NR_PDE_ENTRY; ++ i)
+		if (Page_Directory_Fault(pdir + i) == FALSE)
+		{
+			pent = (struct PageTableEntry *)(((pdir + i) -> page_frame) << 12);
+			for (j = 0; j < NR_PTE_ENTRY; ++ j)
+				if (Page_Table_Fault(pent + j) == FALSE)
+				{
+					free_memory((void *)((pent + j) -> page_frame << 12));
+					make_invalid_pte(pent + j);
+
+				}
+			make_invalid_pde(pdir + i);
+		}
+
+}
+
+
+void copy_page(struct PCB *source, struct PCB *target) {
+	static struct PageDirectoryEntry	*pdir_source, *pdir_target;
+	static struct PageTableEntry		*pent_source, *pent_target;
+
+	static void		*addr;
+
+	static int_32	i, j;
+
+	pdir_source = (struct PageDirectoryEntry *)(source -> pagedir);
+	pdir_target = (struct PageDirectoryEntry *)(target -> pagedir);
+
+
+	for (i = 0; i < NR_PDE_ENTRY; ++ i)
+		if (Page_Directory_Fault(pdir_source + i) == FALSE)
+		{
+			pent_source = (struct PageTableEntry *)(((pdir_source + i) -> page_frame) << 12);
+
+			addr = allocate_memory();
+			make_pde(pdir_target + i, addr);
+			pent_target = (struct PageTableEntry *)addr;
+			
+			for (j = 0; j < NR_PTE_ENTRY; ++ j)
+				if (Page_Table_Fault(pent_source + j) == FALSE)
+				{
+					addr = allocate_memory();
+					make_pte(pent_target + j, addr);
+
+					copy_memory((void *)((pent_source + j) -> page_frame << 12), addr);
+				}
+		}
+}
 
 //length:	unit = 4KB
 void free_page(struct PCB *pcb, void *start, uint_32 length) {
@@ -151,16 +234,16 @@ void free_page(struct PCB *pcb, void *start, uint_32 length) {
 	uint_32 pa = (pte & ~0xFFF) | ((uint_32)start & 0xFFF);
 	*/
 	
-	struct PageDirectoryEntry	*pdir;
-	struct PageTableEntry		*pent;
+	static struct PageDirectoryEntry	*pdir;
+	static struct PageTableEntry		*pent;
 
 	uint_32 pde = ((uint_32)start) >> 22;
 	uint_32 pte = (((uint_32)start) >> 12) & 0x3FF;
 
 	pdir = (struct PageDirectoryEntry *)(pcb -> pagedir);
 
-	boolean clean_pd;
-	int i;
+	static boolean		clean_pd;
+	static int_32		i;
 	
 	while (length != 0)
 	{
@@ -212,10 +295,10 @@ void free_page(struct PCB *pcb, void *start, uint_32 length) {
 
 void init_user_page(struct PCB *pcb) {
 
-	struct PageDirectoryEntry	*pdir;
-	struct PageTableEntry		*pent;
+	static struct PageDirectoryEntry	*pdir;
+	static struct PageTableEntry		*pent;
 
-	void				*addr;
+	static void				*addr;
 
 //	uint_32				PT_offset;
 
@@ -227,7 +310,7 @@ void init_user_page(struct PCB *pcb) {
 
 	//PT_offset = (uint_32)va_to_pa(pcb -> pagetable);
 
-	int i, j;
+	static int_32	 i, j;
 
 	//initialize page table
 	for (i = 0; i < NR_PDE_ENTRY; ++ i)

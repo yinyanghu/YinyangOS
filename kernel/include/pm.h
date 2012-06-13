@@ -2,6 +2,9 @@
 #define __PM_H__
 
 #define PM_LOAD_PROC	0xAA
+#define PM_EXIT_PROC	0xBB
+#define PM_WAITPID		0xCC
+
 
 extern pid_t	PM;
 
@@ -36,6 +39,22 @@ struct ProgramHeader {
 	unsigned int align;
 };
 
+
+struct WaitQueue_type {
+	uint_32		pid;
+	int_32		wait_for;
+};
+
+extern struct WaitQueue_type	WaitQueue[];
+
+extern void asm_do_int80_exit(void);
+
 void ProcessManagement(void);
+
+void init_PM(void);
+
+void Create_uthread(uint_32);
+
+void Exit_uthread(pid_t);
 
 #endif

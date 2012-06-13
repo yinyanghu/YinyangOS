@@ -24,27 +24,29 @@ struct Message {
 			uint_32 offset, length;
 		} fm_msg;
 		struct {
-			struct PCB	*target_pcb;
+			struct PCB	*target_pcb, *source_pcb;
 			uint_32		start, length;
 		} mm_msg;
 		struct {
 			uint_32		file_name;
+			pid_t		pid;
+			int_32		p1, p2;
 		} pm_msg;
 	};
 };
 
 
 struct Message_Pool_type {
-	struct Message			msg;
+	struct Message				msg;
 	struct Message_Pool_type	*prev, *next;
-	boolean				flag;
+	boolean						flag;
 };
 
 
-struct Message_Pool_type* Find_Empty_Message(struct Message_Pool_type *Pool);
+struct Message_Pool_type* Find_Empty_Message(struct Message_Pool_type *);
 
-void send(pid_t pid, struct Message *m);
-void receive(pid_t pid, struct Message *m);
+void send(pid_t, struct Message *);
+void receive(pid_t, struct Message *);
 
 
 #endif

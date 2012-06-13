@@ -53,7 +53,7 @@ void vecsys();
 
 void irq_empty();
 
-void init_idt() {
+void init_idt(void) {
 	int i;
 	for (i = 0; i < NR_IRQ; i ++) {
 		set_trap(idt + i, SEG_KERNEL_CODE << 3, (uint_32)irq_empty, DPL_KERNEL);

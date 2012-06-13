@@ -12,3 +12,26 @@ INT80_WRITE
 	%ebx = &buf
 	%ecx = length
 	write(char *buf, int len)
+
+INT80_SLEEP
+	%eax = 0x3
+	%ebx = second
+	sleep(int second)
+
+INT80_EXIT
+	%eax = 0x4
+	%ebx = exit_code
+	exit(int exit_code)
+
+INT80_GETPID
+	%eax = 0x5
+	getpid(void)
+
+INT80_WAITPID
+	%eax = 0x6
+	%ebx = wait_for
+	waitpid(pid_t wait_for)
+
+
+
+

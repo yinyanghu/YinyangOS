@@ -40,6 +40,11 @@ printk("Rogar that!\n");
 				lock();
 				new_alarm(m.int_msg.p1, m.int_msg.p2);
 				unlock();
+				break;
+			case TIMER_ALRM_FIRE:
+				m.type = -1;
+				send(m.int_msg.p1, &m);
+				break;
 		}
 	}
 }
@@ -59,10 +64,11 @@ printk("Timer Interupt\n");
 		alarm_queue->remain_time --;
 		while (alarm_queue != NULL && alarm_queue->remain_time <= 0) {
 			m.type = TIMER_ALRM_FIRE;
+			m.int_msg.p1 = alarm_queue -> pid;
 #ifdef DEBUG
 printk("God want to send to %d\n", alarm_queue -> pid);
 #endif
-			send(alarm_queue->pid, &m);
+			send(TIMER, &m);
 #ifdef DEBUG
 printk("after send\n");
 #endif

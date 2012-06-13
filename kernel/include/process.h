@@ -15,7 +15,7 @@ struct PCB {
 	uint_8				kstack[STACK_SIZE];
 	struct PCB			*next, *prev;
 	boolean				flag;
-	int				status;
+	int_32				status;
 
 	struct CR3			cr3;
 	pid_t				pid;
@@ -49,7 +49,7 @@ void init_proc(void);
 
 
 int Find_Empty_PCB(void);
-void init_message_pool(struct PCB *ptr);
+void init_message_pool(struct PCB *);
 void Create_kthread(void (*)(void));
 
 
@@ -58,9 +58,9 @@ struct PCB* find_next_live_process(void);
 void schedule(void);
 
 
-struct PCB* fetch_pcb(pid_t pid);
-void copy_from_kernel(struct PCB *pcb_ptr, void *dest, void *src, int len);
-void copy_to_kernel(struct PCB *pcb_ptr, void *dest, void *src, int len);
+struct PCB* fetch_pcb(pid_t);
+void copy_from_kernel(struct PCB *, void *, void *, int);
+void copy_to_kernel(struct PCB *, void *, void *, int);
 
 
 #endif

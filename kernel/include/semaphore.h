@@ -11,9 +11,9 @@ struct Sem_type {
 };
 
 
-void Sem_init(struct Sem_type *sem, int init_token);
+void Sem_init(struct Sem_type *, int);
 //struct Sem_type* Sem_new(void);
-void Sem_P(struct Sem_type *sem);
-void Sem_V(struct Sem_type *sem);
+void Sem_P(struct Sem_type *);
+void Sem_V(struct Sem_type *);
 
 #endif

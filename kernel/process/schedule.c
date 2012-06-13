@@ -27,7 +27,7 @@ void schedule(void) {
 		current_pcb = find_next_live_process();
 //		printk("%d\n", current_pcb -> pid);
 		current_pcb -> status = STATUS_RUNNING;
-//		printk("Next PCB = %d\n", current_pcb -> pid);
+		printk("%d", current_pcb -> pid);
 //		printk("CR3 = %x\n", *((uint_32 *)(&(current_pcb -> cr3))));
 //		save_cr3(&(current_pcb -> cr3));
 /*

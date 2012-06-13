@@ -29,6 +29,7 @@ irq_empty: pushl $-1; jmp asm_do_irq
 
 .globl asm_do_irq
 .globl asm_do_int
+.globl asm_do_int80_exit
 .extern irq_handle
 .extern int_handle
 .extern schedule
@@ -70,6 +71,13 @@ irq_in_kernel:
 
 	movl $0, enter_interrupt 
 	iret
+
+
+asm_do_int80_exit:
+
+	#save return value
+	movl %eax, %ebx
+	movl $0x4, %eax
 
 asm_do_int:
 

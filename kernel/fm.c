@@ -6,7 +6,7 @@
 
 pid_t	FM;
 
-static uint_32 do_read(uint_32 file_name, char *buffer, uint_32 offset, uint_32 length);
+static uint_32 do_read(uint_32, char *, uint_32, uint_32);
 
 void FileManagement(void) {
 
