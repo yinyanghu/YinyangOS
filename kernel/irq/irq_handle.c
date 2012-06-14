@@ -142,6 +142,7 @@ void int_handle(struct TrapFrame *tf) {
 			send(PM, &m);
 			receive(PM, &m);
 			tf -> eax = m.pm_msg.p1;
+			color_printk("receive = %d\n", tf -> eax);
 			break;
 
 		default: 

@@ -33,13 +33,17 @@ void vfprintf(void (*printer)(char), const char *ctl, void **args) {
 						break;
 
 				case 'x':	hex = *((uint_32 *)args ++);
-						for (i = 0; hex != 0; hex = hex >> 4, ++ i)
-							temp[i] = hex & 0xF;
-						for (-- i; i >= 0; -- i)
-							if (temp[i] < 10)
-								printer(temp[i] + 48);
-							else
-								printer(temp[i] - 10 + 65);
+						if (hex == 0) printer('0');
+						else
+						{
+							for (i = 0; hex != 0; hex = hex >> 4, ++ i)
+								temp[i] = hex & 0xF;
+							for (-- i; i >= 0; -- i)
+								if (temp[i] < 10)
+									printer(temp[i] + 48);
+								else
+									printer(temp[i] - 10 + 65);
+						}
 						break;
 
 				case '%':	printer('%');

@@ -225,11 +225,10 @@ void copy_page(struct PCB *source, struct PCB *target) {
 	//for (i = 0x1009000; i < 0x100A000; ++ i)
 	//		printk("%x %x\n", i, *(uint_32 *)i);
 
-
-	//User Space:		0 --> 3G
 	for (i = 0; i < (NR_PDE_ENTRY >> 2) * 3; ++ i)
 		if (Page_Directory_Fault(pdir_source + i) == FALSE)
 		{
+			printk("i = %d\n", i);
 			pent_source = (struct PageTableEntry *)(((pdir_source + i) -> page_frame) << 12);
 
 			addr = allocate_memory();
@@ -238,20 +237,30 @@ void copy_page(struct PCB *source, struct PCB *target) {
 			for (j = 0; j < NR_PTE_ENTRY; ++ j)
 				if (Page_Table_Fault(pent_source + j) == FALSE)
 				{
+				//	printk("j = %d\n", j);
+					if ((((pent_source + j) -> page_frame) << 12) >= USER_MEM_LOW)
+					{
 						addr = allocate_memory();
 						make_pte(pent_target + j, addr);
 						copy_memory(((pent_source + j) -> page_frame) << 12, (uint_32)addr);
-						//printk("PA = %x\n", ((pent_source + j) -> page_frame) << 12);
+						printk("PA = %x\n", ((pent_source + j) -> page_frame) << 12);
+					}
+					else
+					{
+				//		panic("kernel");
+		//				printk("=================================================\n");
+						make_pte(pent_target + j, (void *)(((pent_source + j) -> page_frame) << 12));
+					}
+
 				}
 				else
 					make_invalid_pte(pent_target + j);
+	//if (i > 50)panic("first blood!\n");
 		}
 		else
 			make_invalid_pde(pdir_target + i);
 
-	//Kernel Space:		3G --> 4G
-	for (i = (NR_PDE_ENTRY >> 2) * 3; i < NR_PDE_ENTRY; ++ i)
-		pdir_target[i] = pdir_source[i];
+	//panic("sdfsdfsdfsdfsdfsfadfasdfas\n");
 	
 }
 

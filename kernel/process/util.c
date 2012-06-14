@@ -147,8 +147,8 @@ void init_message_pool(struct PCB *ptr) {
 
 
 void Push_Stack_4Byte(uint_8 **Addr, uint_32 Key) {
-	*((uint_32 *)(*Addr)) = Key;	
 	*Addr -= 4;
+	*((uint_32 *)(*Addr)) = Key;	
 }
 
 
@@ -197,7 +197,7 @@ void Create_kthread(void (*thread)(void)) {
 	init_message_pool(new_pcb);
 
 	//printk("kernel stack : %x\n", new_pcb -> kstack);
-	stack_ptr = (uint_8 *)((uint_32)(new_pcb -> kstack) + STACK_SIZE - 4);
+	stack_ptr = (uint_8 *)((uint_32)(new_pcb -> kstack) + STACK_SIZE);
 	//printk("init stack pointer = %x\n", (uint_32)stack_ptr);
 
 
@@ -223,15 +223,17 @@ void Create_kthread(void (*thread)(void)) {
 		Push_Stack_4Byte(&stack_ptr, key);
 
 	//%esp & PCB -> esp
+	Push_Stack_4Byte(&stack_ptr, (uint_32)stack_ptr);
 	new_pcb -> esp = (void *)((uint_32)stack_ptr);
-	Push_Stack_4Byte(&stack_ptr, (uint_32)stack_ptr + 4);
 
 	
+	/*
 	for (i = (uint_32)new_pcb -> kstack + STACK_SIZE - 4; i > (uint_32)new_pcb -> kstack + STACK_SIZE - 64; i = i - 4)
 		if (*(uint_32 *)i > 0xC0000000)
 			printk("%x ", *(uint_32 *)i);
 		else
 			printk("%d ", *(uint_32 *)i);
+	*/
 
 	printk("\n");
 	
@@ -295,7 +297,7 @@ void init_proc() {
 	Create_kthread(ProcessManagement);
 	PM = 6;
 
-//	Create_kthread(test_ide);
+	//Create_kthread(test_ide);
 
 	for (i = 0; i < 8; ++ i)
 		printk("Process %d, CR3 = %x\n", i, *((uint_32 *)(&((Proc + i) -> cr3))));

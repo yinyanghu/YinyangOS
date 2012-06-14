@@ -13,19 +13,34 @@ void hanoi(int n, int a, int b, int c)
 	hanoi(n - 1, b, a, c);
 }
 */
+int global = 0;
 
 int main(void)
 {
 	
 //	hanoi(4, 1, 2, 3);
-	int k = 10;
-	while (k --)
-	{
-		printf("Hello Yinyanghu!\n");
-	}
+	printf("Hello Yinyanghu!\n");
 	
 	printf("First PID = %d\n", getpid());
-	printf("Waiting PID = %d\n", waitpid(getpid() + 1));
+	global = fork();
+	printf("PID @_@ = %d\n", global);
+	int k = 213123;
+	if (global == 0)
+	{
+		{
+		printf("%d %d\n", global, getpid());
+		printf("Child Process, PID = %d, %d, fork() = %d\n", getpid(), k, global);
+		printf("fork() = %d, Child Process, PID = %d, %d\n", global, getpid(), k);
+		}
+	}
+	else
+	{
+		{
+		printf("%d %d\n", global, getpid());
+		printf("Father Process, PID = %d, %d, fork() = %d\n", getpid(), k, global);
+		printf("fork() = %d, Father Process, PID = %d, %d\n", global, getpid(), k);
+		}
+	}
 	printf("Exiting........\n");
 	return 0;
 }

@@ -12,6 +12,10 @@ syscall_3:
 
 	movl	%esp, %ebp
 
+	pushl	%ebx
+	pushl	%ecx
+	pushl	%edx
+
 	movl	8(%ebp), %eax
 	movl	12(%ebp), %ebx
 	movl	16(%ebp), %ecx
@@ -19,6 +23,10 @@ syscall_3:
 
 	int		$0x80
 
-	pop		%ebp
+	popl	%edx
+	popl	%ecx
+	popl	%ebx
+
+	popl	%ebp
 
 	ret

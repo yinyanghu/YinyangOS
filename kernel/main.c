@@ -55,7 +55,7 @@ os_init(void) {
 
 	/* load init user process */
 	Create_uthread(1);
-	Create_uthread(2);
+	//Create_uthread(2);
 
 
 	/* This context now becomes the idle proess. */

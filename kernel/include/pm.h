@@ -4,6 +4,7 @@
 #define PM_LOAD_PROC	0xAA
 #define PM_EXIT_PROC	0xBB
 #define PM_WAITPID		0xCC
+#define PM_FORK			0xDD
 
 
 extern pid_t	PM;
@@ -54,7 +55,5 @@ void ProcessManagement(void);
 void init_PM(void);
 
 void Create_uthread(uint_32);
-
-void Exit_uthread(pid_t);
 
 #endif

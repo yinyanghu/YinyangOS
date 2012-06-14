@@ -20,7 +20,8 @@ struct PCB {
 	struct CR3			cr3;
 	pid_t				pid;
 
-	struct Sem_type			Msg_lock;
+	struct Sem_type		Msg_lock;
+
 	struct Message_Pool_type	Msg_rec_Pool[Max_Message_Pool];	
 	//struct Message_Pool_type	Msg_ign_Pool[Max_Message_Pool];
 	struct Message_Pool_type	*Msg_rec, *Msg_ign;

@@ -1,17 +1,9 @@
 #include "kernel.h"
 
-uint_32 hack;
+static uint_32 hack;
 
 void test_ide(void) {
 
-	static struct Message m;
-
-	m.type = PM_LOAD_PROC;
-	m.pm_msg.file_name = 1;
-
-	send(PM, &m);
-	receive(PM, &m);
-	
 	hack = 0;
 	printk("hack address = %x\n", &hack);
 	while (1)

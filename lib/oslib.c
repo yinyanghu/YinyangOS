@@ -64,41 +64,46 @@ void printf(const char *ctl, ...) {
 			switch (*(++ ctl))
 			{
 				case 'd':	dec = *((int *)args ++);
-						if (dec == 0)
-							buf[buf_ptr ++] = '0';
-						else
-						{
-							if (dec < 0)
+							if (dec == 0)
+								buf[buf_ptr ++] = '0';
+							else
 							{
-								buf[buf_ptr ++] = '-';
-								dec = -dec;
+								if (dec < 0)
+								{
+									buf[buf_ptr ++] = '-';
+									dec = -dec;
+								}
+								for (i = 0; dec != 0; dec /= 10, ++ i)
+									temp[i] = dec % 10;
+								for (-- i; i >= 0; -- i)
+									buf[buf_ptr ++] = (char)(temp[i] + 48);
 							}
-							for (i = 0; dec != 0; dec /= 10, ++ i)
-								temp[i] = dec % 10;
-							for (-- i; i >= 0; -- i)
-								buf[buf_ptr ++] = (char)(temp[i] + 48);
-						}
-						break;
+							break;
 
 				case 'x':	hex = *((unsigned int *)args ++);
-						for (i = 0; hex != 0; hex = hex >> 4, ++ i)
-							temp[i] = hex & 0xF;
-						for (-- i; i >= 0; -- i)
-							if (temp[i] < 10)
-								buf[buf_ptr ++] = (char)(temp[i] + 48);
+							if (hex == 0)
+								buf[buf_ptr ++] = '0';
 							else
-								buf[buf_ptr ++] = (char)(temp[i] + 55);
-						break;
+							{
+								for (i = 0; hex != 0; hex = hex >> 4, ++ i)
+									temp[i] = hex & 0xF;
+								for (-- i; i >= 0; -- i)
+									if (temp[i] < 10)
+										buf[buf_ptr ++] = (char)(temp[i] + 48);
+									else
+										buf[buf_ptr ++] = (char)(temp[i] + 55);
+							}
+							break;
 
 				case '%':	buf[buf_ptr ++] = '%';
-						break;
+							break;
 
 				case 'c':	buf[buf_ptr ++] = *((char *)args ++);
-						break;
+							break;
 
 				case 's':	for (ch = (char *)(*(args ++)); *ch != 0; ++ ch)
 							buf[buf_ptr ++] = *ch;
-						break; 
+							break; 
 			}
 		}
 
