@@ -4,6 +4,22 @@ Author: Jian Li (ID:yinyanghu), an undergraduate student in Nanjing University, 
 E-mail: lijianxp2005@gmail.com
 Google Talk: lijianxp2005@gmail.com
 
+Jun 14, 2012
+	Finish sample fork() system call!
+	Fixed a bug!(JYY!!!!!!)
+
+Jun 13, 2012
+	Completed most syscall except fork() and exec(). ^_^
+
+Jun 9, 2012
+	Fuck! Compiler! Fuck! Static!
+
+Jun 8, 2012
+	Modified lots of old codes!!!
+	Load initial process finished!
+
+May 31, 2012
+	Paging~
 
 May 25, 2012
 	Prepare for memory management @_@
