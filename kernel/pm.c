@@ -18,7 +18,7 @@ static void Sleep(pid_t, uint_32);
 
 static void Exit_uthread(pid_t);
 
-pid_t Fork_uthread(pid_t);
+static pid_t Fork_uthread(pid_t);
 
 void ProcessManagement(void) {
 

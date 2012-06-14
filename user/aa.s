@@ -14,14 +14,20 @@ global:
 .LC2:
 	.string	"PID @_@ = %d\n"
 .LC3:
-	.string	"%d\n"
+	.string	"%d %d\n"
 	.align 4
 .LC4:
 	.string	"Child Process, PID = %d, %d, fork() = %d\n"
 	.align 4
 .LC5:
-	.string	"Father Process, PID = %d, %d, fork() = %d\n"
+	.string	"fork() = %d, Child Process, PID = %d, %d\n"
+	.align 4
 .LC6:
+	.string	"Father Process, PID = %d, %d, fork() = %d\n"
+	.align 4
+.LC7:
+	.string	"fork() = %d, Father Process, PID = %d, %d\n"
+.LC8:
 	.string	"Exiting........\n"
 	.text
 	.globl	main
@@ -54,8 +60,10 @@ main:
 	movl	global, %eax
 	testl	%eax, %eax
 	jne	.L2
-	movl	global, %eax
-	movl	%eax, 4(%esp)
+	call	getpid
+	movl	global, %edx
+	movl	%eax, 8(%esp)
+	movl	%edx, 4(%esp)
 	movl	$.LC3, (%esp)
 	call	printf
 	movl	global, %ebx
@@ -66,10 +74,20 @@ main:
 	movl	%eax, 4(%esp)
 	movl	$.LC4, (%esp)
 	call	printf
+	call	getpid
+	movl	global, %edx
+	movl	28(%esp), %ecx
+	movl	%ecx, 12(%esp)
+	movl	%eax, 8(%esp)
+	movl	%edx, 4(%esp)
+	movl	$.LC5, (%esp)
+	call	printf
 	jmp	.L3
 .L2:
-	movl	global, %eax
-	movl	%eax, 4(%esp)
+	call	getpid
+	movl	global, %edx
+	movl	%eax, 8(%esp)
+	movl	%edx, 4(%esp)
 	movl	$.LC3, (%esp)
 	call	printf
 	movl	global, %ebx
@@ -78,10 +96,18 @@ main:
 	movl	28(%esp), %edx
 	movl	%edx, 8(%esp)
 	movl	%eax, 4(%esp)
-	movl	$.LC5, (%esp)
+	movl	$.LC6, (%esp)
+	call	printf
+	call	getpid
+	movl	global, %edx
+	movl	28(%esp), %ecx
+	movl	%ecx, 12(%esp)
+	movl	%eax, 8(%esp)
+	movl	%edx, 4(%esp)
+	movl	$.LC7, (%esp)
 	call	printf
 .L3:
-	movl	$.LC6, (%esp)
+	movl	$.LC8, (%esp)
 	call	printf
 	movl	$0, %eax
 	movl	-4(%ebp), %ebx

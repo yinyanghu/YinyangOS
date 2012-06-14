@@ -12,15 +12,15 @@ int write(char *buf, int length) {
 }
 
 int fork(void) {
-	return syscall_1(INT80_FORK);	
+	return syscall_0(INT80_FORK);	
 }
 
 int waitpid(int pid) {
-	return syscall_2(INT80_WAITPID, pid);
+	return syscall_1(INT80_WAITPID, pid);
 }
 
 int getpid(void) {
-	return syscall_1(INT80_GETPID);
+	return syscall_0(INT80_GETPID);
 }
 
 void exit(int exit_code) {

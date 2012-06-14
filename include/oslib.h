@@ -9,10 +9,10 @@
 #define INT80_WAITPID		0x6
 #define INT80_FORK			0x7
 
-extern int syscall_0();
-extern int syscall_1();
-extern int syscall_2();
-extern int syscall_3();
+extern int syscall_0(int);
+extern int syscall_1(int, int);
+extern int syscall_2(int, int, int);
+extern int syscall_3(int, int, int, int);
 
 int read(char *, int);
 int write(char *, int);
