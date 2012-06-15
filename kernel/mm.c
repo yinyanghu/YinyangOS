@@ -92,6 +92,13 @@ static inline void free_memory(void *addr) {
 	-- Ppage_flag[pa_to_id((uint_32)addr)];
 }
 
+
+//share physical memory
+//need better algorithm!
+static inline void share_memory(void *addr) {
+	++ Ppage_flag[pa_to_id((uint_32)addr)];
+}
+
 //copy physical memory from source address to target address
 //unit = 4KB
 static void copy_memory(uint_32 src, uint_32 dest) {
@@ -184,13 +191,14 @@ void exit_page(struct PCB *pcb) {
 		if (Page_Directory_Fault(pdir + i) == FALSE)
 		{
 			pent = (struct PageTableEntry *)(((pdir + i) -> page_frame) << 12);
+
 			for (j = 0; j < NR_PTE_ENTRY; ++ j)
 				if (Page_Table_Fault(pent + j) == FALSE)
 				{
 					free_memory((void *)((pent + j) -> page_frame << 12));
-					make_invalid_pte(pent + j);
-
 				}
+
+			free_memory((void *)((pdir + i) -> page_frame << 12));
 			make_invalid_pde(pdir + i);
 		}
 
@@ -251,7 +259,11 @@ void copy_page(struct PCB *source, struct PCB *target) {
 
 	//Kernel Space:		3G --> 4G
 	for (i = (NR_PDE_ENTRY >> 2) * 3; i < NR_PDE_ENTRY; ++ i)
-		pdir_target[i] = pdir_source[i];
+	{
+		make_pde(pdir_target + i, (void *)(((pdir_source + i) -> page_frame) << 12));
+		share_memory((void *)(((pdir_source + i) -> page_frame) << 12));
+		//pdir_target[i] = pdir_source[i];
+	}
 	
 }
 

@@ -1,16 +1,31 @@
 #include "oslib.h"
+/*
+int main(void)
+{
+	int k = fork();	
+	if (k != 0)
+	{
+			while (1)
+			printf("JAVA\n");
+	}
+
+	return 0;
+}
+*/
 
 int main(void)
 {
-	
-	printf("Second PID = %d\n", getpid());
-	printf("Starting Sleeping....................\n");
-	sleep(4);
-	printf("Exiting........\n");
-	exit(-128);
+	while (1)
+	{
+		printf("PID = %d\n", getpid());
+		int k = fork();
+		if (k != 0)
+		{
+			break;
+		}
+	}
 	return 0;
 }
-
 
 
 /*

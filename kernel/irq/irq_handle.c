@@ -78,11 +78,12 @@ void int_handle(struct TrapFrame *tf) {
 	//printk("begin\n");	
 
 	//current_pcb -> esp = tf;
+	//color_printk("Enter Int80 Handler, %d\n", tf -> eax); 
 
 	switch (tf -> eax) {
 		case INT80_SCHEDULE:
 			need_sched = TRUE;
-			tf -> eax = 0;
+			//tf -> eax = 0;
 			break;
 
 		case INT80_READ:
@@ -121,6 +122,7 @@ void int_handle(struct TrapFrame *tf) {
 			m.pm_msg.p1 = tf -> ebx;
 			send(PM, &m);
 			receive(PM, &m);
+			panic("Impossible return to INT80_EXIT!!!\n");
 			break;
 
 		case INT80_GETPID:

@@ -213,11 +213,15 @@ static void Exit_uthread(pid_t pid) {
 	unlock();
 //	exit_page(pcb_ptr);
 	
+//	printk("status = %d, flag = %d\n", pcb_ptr -> status, pcb_ptr -> flag);
+	
 	m.type = MM_EXIT_PROC;
 	m.mm_msg.target_pcb = pcb_ptr;
 	send(MM, &m);
 	receive(MM, &m);
+	
 
+	printk("Exit_uthread........................OK!\n");
 
 }
 

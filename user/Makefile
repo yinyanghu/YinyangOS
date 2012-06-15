@@ -14,7 +14,11 @@ OBJS2 =	../lib/syscall.o \
 		../lib/oslib.o \
 		bb.o
 
-all:	aa bb
+OBJS3 =	../lib/syscall.o \
+		../lib/oslib.o \
+		fork_bomb.o
+
+all:	aa bb fork_bomb
 
 aa:		$(OBJS1) Makefile
 	$(LD) $(LDFLAGS) $(INCLUDE) -N -e main -o aa $(OBJS1)
@@ -22,8 +26,12 @@ aa:		$(OBJS1) Makefile
 bb:		$(OBJS2) Makefile
 	$(LD) $(LDFLAGS) $(INCLUDE) -N -e main -o bb $(OBJS2)
 
+fork_bomb:		$(OBJS3) Makefile
+	$(LD) $(LDFLAGS) $(INCLUDE) -N -e main -o fork_bomb $(OBJS3)
+
 -include *.d
 
 clean:
 	rm -f *.d *.o init_proc
 	rm -f ../lib/*.d ../lib/*.o
+	rm -f aa bb fork_bomb
