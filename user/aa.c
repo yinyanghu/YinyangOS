@@ -13,7 +13,6 @@ void hanoi(int n, int a, int b, int c)
 	hanoi(n - 1, b, a, c);
 }
 */
-int global = 0;
 
 int main(void)
 {
@@ -22,7 +21,7 @@ int main(void)
 	printf("Hello Yinyanghu!\n");
 	
 	printf("First PID = %d\n", getpid());
-	global = fork();
+	int global = fork();
 	printf("PID @_@ = %d\n", global);
 	int k = 213123;
 	if (global == 0)

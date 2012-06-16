@@ -13,17 +13,17 @@ int main(void)
 }
 */
 
+int i = 4;
+
 int main(void)
 {
-	while (1)
+	while (i --)
 	{
-		printf("PID = %d\n", getpid());
-		int k = fork();
-		if (k != 0)
-		{
-			break;
-		}
+		fork();
 	}
+	printf("%d, I    \n", getpid());
+	//while (1);
+
 	return 0;
 }
 

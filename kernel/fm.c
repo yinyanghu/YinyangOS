@@ -11,7 +11,7 @@ static uint_32 do_read(uint_32, char *, uint_32, uint_32);
 void FileManagement(void) {
 
 	static struct Message m;
-	static uint_32 read_size;
+	uint_32		read_size;
 
 	while (TRUE) {
 		receive(ANY, &m);
@@ -22,7 +22,7 @@ void FileManagement(void) {
 			m.type = -1;
 			m.int_msg.p1 = read_size;
 			send(m.src, &m);
-			printk("send to %d\n", m.src);
+//			printk("send to %d\n", m.src);
 		}
 	}
 

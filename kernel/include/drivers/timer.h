@@ -4,8 +4,8 @@
 #define NR_PROC_TIME	5
 #define NR_PROCESS	32
 
-#define TIMER_SET_ALRM	0xA
-#define TIMER_ALRM_FIRE	0xB
+#define TIMER_SET_ALRM		0x20
+#define TIMER_ALRM_FIRE		0x21
 
 struct Alarm {
 	pid_t pid;

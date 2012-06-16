@@ -29,7 +29,7 @@ void ProcessManagement(void) {
 		switch (m.type) {
 			case PM_FORK:
 				m.pm_msg.p1 = Fork_uthread(m.pm_msg.pid);
-				color_printk("fork return = %d\n", m.pm_msg.p1);
+//				color_printk("fork return = %d\n", m.pm_msg.p1);
 				m.type = -1;
 				send(m.src, &m);
 				break;
@@ -57,8 +57,8 @@ void init_PM(void) {
 }
 
 static inline uint_32 V_to_P(uint_32 va, struct PCB *pcb) {
-	static uint_32	pde;
-	static uint_32	pte;
+	uint_32	pde;
+	uint_32	pte;
 
 	pde = ((uint_32 *)((*(uint_32 *)(&(pcb -> cr3))) & ~0xFFF))[va >> 22];
 	pte = ((uint_32 *)(pde & ~0xFFF))[(va >> 12) & 0x3FF];
@@ -67,9 +67,9 @@ static inline uint_32 V_to_P(uint_32 va, struct PCB *pcb) {
 
 pid_t Fork_uthread(pid_t pid) {
 
-	static uint_32 new;
+	uint_32 new;
 
-	static struct PCB *source_pcb, *target_pcb;
+	struct PCB *source_pcb, *target_pcb;
 
 	static struct Message m;
 
@@ -83,6 +83,7 @@ pid_t Fork_uthread(pid_t pid) {
 	if (new == PROC_FULL)
 		panic("Process Table is Full!\n");
 
+	color_printk("Forking: New PID = %d\n", new);
 	target_pcb = Proc + new;
 
 	target_pcb -> pid = new;
@@ -94,13 +95,21 @@ pid_t Fork_uthread(pid_t pid) {
 
 	unlock();
 
+//	copy_page(source_pcb, target_pcb);
+	
+
 	//Copy Page Table && Physical Memory
+	
 	m.type = MM_COPY;	
 	m.mm_msg.source_pcb = source_pcb;
 	m.mm_msg.target_pcb = target_pcb;
+	//printk("to send, MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM = %d\n", MM);
 	send(MM, &m);
+	//printk("to receive, MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM = %d\n", MM);
+	//printk("PM sending copy_memory!!!\n");
 	receive(MM, &m);
 
+	//printk("MM replay!!! source = %d\n", m.src);
 
 	lock();
 
@@ -124,7 +133,7 @@ pid_t Fork_uthread(pid_t pid) {
 
 
 	//eax <-- return address
-	static uint_32		eax_addr;
+	uint_32		eax_addr;
 
 	eax_addr = *((uint_32 *)target_pcb -> kstack_top - 1) + 4 * 7;
 	eax_addr = V_to_P(eax_addr, target_pcb);
@@ -148,7 +157,7 @@ pid_t Fork_uthread(pid_t pid) {
 
 	unlock();
 	
-	printk("Ready to schedule fork process.........................OK!\n");
+	//printk("Ready to schedule fork process.........................OK!\n");
 	return new;
 }
 
@@ -156,12 +165,12 @@ pid_t Fork_uthread(pid_t pid) {
 
 static void Wake_Up(pid_t pid, uint_32 exitcode) {
 
-	static uint_32	i;
+	int_32	i;
 	static struct Message	m;
 
 	lock();
 
-	printk("enter Wake_Up..................OK!\n");
+//	printk("enter Wake_Up..................OK!\n");
 
 	i = 0;
 	m.type = -1;
@@ -183,7 +192,7 @@ static void Wake_Up(pid_t pid, uint_32 exitcode) {
 			++ i;
 	}
 
-	printk("leave Wake_Up..................OK!\n");
+	//printk("leave Wake_Up..................OK!\n");
 	unlock();
 }
 
@@ -197,9 +206,9 @@ static void Sleep(pid_t pid, uint_32 wait_for) {
 
 static void Exit_uthread(pid_t pid) {
 
-	static struct PCB		*pcb_ptr;
+	struct PCB		*pcb_ptr;
 
-	static struct Message	m;
+	//static struct Message	m;
 
 	lock();	
 
@@ -215,21 +224,23 @@ static void Exit_uthread(pid_t pid) {
 	
 //	printk("status = %d, flag = %d\n", pcb_ptr -> status, pcb_ptr -> flag);
 	
+	/*
 	m.type = MM_EXIT_PROC;
 	m.mm_msg.target_pcb = pcb_ptr;
 	send(MM, &m);
 	receive(MM, &m);
+	*/
 	
 
-	printk("Exit_uthread........................OK!\n");
+	//printk("Exit_uthread........................OK!\n");
 
 }
 
 void Create_uthread(uint_32 file_name) {
 
-	static uint_32 new;
+	uint_32 new;
 	
-	static struct PCB *new_pcb;
+	struct PCB *new_pcb;
 
 	lock();
 	
@@ -247,7 +258,7 @@ void Create_uthread(uint_32 file_name) {
 
 	init_message_pool(new_pcb);
 
-	printk("New pid = %d\n", new_pcb -> pid);
+	//printk("New pid = %d\n", new_pcb -> pid);
 
 
 	init_user_page(new_pcb);
@@ -265,7 +276,7 @@ void Create_uthread(uint_32 file_name) {
 
 	//Ready to Schedule
 	
-	printk("ready to schedule................!!!!\n");
+	//printk("ready to schedule................!!!!\n");
 	lock();
 
 	new_pcb -> next = init;
@@ -285,10 +296,10 @@ static void load_init_proc(uint_32 file_name, struct PCB *pcb) {
 	struct ELFHeader *elf;
 	struct ProgramHeader *ph, *eph;
 
-	static uint_32	va;
+	uint_32	va;
 
-	printk("enter load_init_proc ...........Successful\n");
-	printk("send FM read request ...........Successful\n");
+	//printk("enter load_init_proc ...........Successful\n");
+	//printk("send FM read request ...........Successful\n");
 	m.type = FM_READ;
 	m.fm_msg.file_name = file_name;
 	m.fm_msg.buf = buf;
@@ -298,7 +309,7 @@ static void load_init_proc(uint_32 file_name, struct PCB *pcb) {
 	send(FM, &m);
 	//panic("sb");
 	receive(FM, &m);
-	printk("received ...........Successful\n");
+	//printk("received ...........Successful\n");
 	//panic("sb\n");
 	/*
 	static int_32	j;
@@ -308,12 +319,12 @@ static void load_init_proc(uint_32 file_name, struct PCB *pcb) {
 			*/
 
 
-	printk("Read ELF header\n"); 
+	//printk("Read ELF header\n"); 
 	elf = (struct ELFHeader *)buf;
 
 	ph = (struct ProgramHeader *)((char *)elf + elf -> phoff);
 	eph = ph + elf -> phnum;
-	printk("begin %x, end %x\n", ph, eph);
+	//printk("begin %x, end %x\n", ph, eph);
 	//static uint_32 total = 0;
 	for (; ph < eph; ++ ph) {
 		//printk("****************************\n");
@@ -347,7 +358,7 @@ static void load_init_proc(uint_32 file_name, struct PCB *pcb) {
 		m.mm_msg.start = va;
 		m.mm_msg.length = ((ph -> memsz) >> 12) + 1;	
 
-		printk("allocate memory: [%x %x), file size = %d\n", va, va + ph -> memsz, ph -> filesz);
+	//	printk("allocate memory: [%x %x), file size = %d\n", va, va + ph -> memsz, ph -> filesz);
 		//total += ph -> memsz;
 
 		//printk("send MM read request, target_pcb = %d, va = %d, length = %d\n", pcb -> pid, va,  ph -> memsz);
@@ -363,14 +374,12 @@ static void load_init_proc(uint_32 file_name, struct PCB *pcb) {
 
 	printk("Finish analyse ELF header\n");
 	//initialize user stack
-	static uint_32	stack_ptr = 0xC0000000;
-	static uint_32	key;
+	uint_32	stack_ptr = 0xC0000000;
+	uint_32	key;
 
 	key = (uint_32)asm_do_int80_exit;
 	stack_ptr -= 4;
 	copy_from_kernel(pcb, (void *)stack_ptr, (void *)&key, 4);
-
-	printk("Yang yang da shen!\n");
 
 	//eflags
 	key = (1 << 9);
@@ -388,7 +397,7 @@ static void load_init_proc(uint_32 file_name, struct PCB *pcb) {
 	copy_from_kernel(pcb, (void *)stack_ptr, (void *)&key, 4);
 
 	//TrapFrame
-	static uint_32 i;
+	uint_32 i;
 	key = 0;
 	for (i = 0; i < 9; ++ i)
 	{

@@ -36,7 +36,7 @@ struct STACK_type {
 
 
 int Find_Empty_PCB() {
-	static uint_32 i;
+	int_32 i;
 	for (i = 1; i < MAX_PROC; ++ i)
 		if (Proc[i].flag == TRUE) return i;
 	return PROC_FULL;
@@ -52,13 +52,13 @@ struct PCB* fetch_pcb(pid_t pid) {
 
 void copy_from_kernel(struct PCB *pcb, void *dest, void *src, int length) {
 
-	static uint_32 pde;
-	static uint_32 pte;
-	static uint_32 pa;
+	uint_32 pde;
+	uint_32 pte;
+	uint_32 pa;
 
-	static struct PageDirectoryEntry	*pdir;
-	static struct PageTableEntry		*pent;
-	static void				*ptr;
+	struct PageDirectoryEntry	*pdir;
+	struct PageTableEntry		*pent;
+	void				*ptr;
 
 	pde = ((uint_32)dest) >> 22;
 	pte = (((uint_32)dest) >> 12) & 0x3FF;
@@ -92,13 +92,13 @@ void copy_from_kernel(struct PCB *pcb, void *dest, void *src, int length) {
 
 void copy_to_kernel(struct PCB *pcb, void *dest, void *src, int length) {
 
-	static uint_32 pde;
-	static uint_32 pte;
-	static uint_32 pa;
+	uint_32 pde;
+	uint_32 pte;
+	uint_32 pa;
 
-	static struct PageDirectoryEntry	*pdir;
-	static struct PageTableEntry		*pent;
-	static void				*ptr;
+	struct PageDirectoryEntry	*pdir;
+	struct PageTableEntry		*pent;
+	void						*ptr;
 
 	pde = ((uint_32)src) >> 22;
 	pte = (((uint_32)src) >> 12) & 0x3FF;
@@ -137,7 +137,7 @@ struct PCB *init;
 
 void init_message_pool(struct PCB *ptr) {
 
-	static uint_32 i;
+	int_32		i;
 	for (i = 0; i < Max_Message_Pool; ++ i)
 		(ptr -> Msg_rec_Pool[i]).flag = TRUE;
 	ptr -> Msg_rec = NULL;
@@ -154,14 +154,12 @@ void Push_Stack_4Byte(uint_8 **Addr, uint_32 Key) {
 
 void Create_kthread(void (*thread)(void)) {
 
-	static uint_32 new;
+	uint_32		new;
 
-	static struct PCB *new_pcb;
+	struct PCB	*new_pcb;
 
-	static uint_8 *stack_ptr;
-	static uint_32 key;
-		
-	static uint_32 i;
+	uint_8		*stack_ptr;
+	uint_32		key, i;
 
 
 	new = Find_Empty_PCB();
@@ -235,7 +233,7 @@ void Create_kthread(void (*thread)(void)) {
 			printk("%d ", *(uint_32 *)i);
 	*/
 
-	printk("\n");
+	//printk("\n");
 	
 
 	//panic("\nFinish\n");
@@ -266,7 +264,7 @@ struct PCB *current_pcb;
 
 void init_proc() {
 
-	static uint_32	i;
+	int_32	i;
 
 	init = Proc;			//Proc[0] --> init
 	init -> next = init -> prev = init;
@@ -283,28 +281,9 @@ void init_proc() {
 	for (i = 1; i < MAX_PROC; ++ i)
 		Proc[i].flag = TRUE;
 
-
-	Create_kthread(timer_driver_thread);
-	TIMER = 1;
-	Create_kthread(tty_driver_thread);
-	TTY = 2;
-	Create_kthread(ide_driver_thread);
-	IDE = 3;
-	Create_kthread(FileManagement);
-	FM = 4;
-	Create_kthread(MemoryManagement);
-	MM = 5;
-	Create_kthread(ProcessManagement);
-	PM = 6;
-
 	//Create_kthread(test_ide);
 
-	for (i = 0; i < 8; ++ i)
-		printk("Process %d, CR3 = %x\n", i, *((uint_32 *)(&((Proc + i) -> cr3))));
-	printk("============================\n");
-
-//	panic("Stop!\n");
-
 	current_pcb = init;
+
 }
 

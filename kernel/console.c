@@ -9,10 +9,10 @@
 #define CRT_ROW      25
 
 /* color codes */
-#define BLACK        0
-#define BLUE         1
-#define WHITE        7
-#define RED	     12
+#define BLACK		0
+#define BLUE		1
+#define WHITE		7
+#define RED			12
 
 
 /* The memory-map of character screen is located at 0xB8000.

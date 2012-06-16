@@ -104,6 +104,7 @@ void int_handle(struct TrapFrame *tf) {
 			send(TTY, &m);
 			receive(TTY, &m);
 			tf -> eax = m.int_msg.p1;
+			//printk("%s", tf -> ebx);
 			break;
 
 		case INT80_SLEEP:
@@ -144,7 +145,7 @@ void int_handle(struct TrapFrame *tf) {
 			send(PM, &m);
 			receive(PM, &m);
 			tf -> eax = m.pm_msg.p1;
-			color_printk("receive = %d\n", tf -> eax);
+			//color_printk("receive = %d\n", tf -> eax);
 			break;
 
 		default: 

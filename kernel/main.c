@@ -40,6 +40,26 @@ os_init(void) {
 	/* Initialize process table. You should fill this. */
 	init_proc();
 
+	/* Load drivers and servers. */
+	Create_kthread(timer_driver_thread);
+	TIMER = 1;
+
+	Create_kthread(tty_driver_thread);
+	TTY = 2;
+
+	Create_kthread(ide_driver_thread);
+	IDE = 3;
+
+	Create_kthread(FileManagement);
+	FM = 4;
+
+	Create_kthread(MemoryManagement);
+	MM = 5;
+
+	Create_kthread(ProcessManagement);
+	PM = 6;
+
+	
 	welcome();
 
 	//uint_32 stack_ptr;
@@ -60,8 +80,8 @@ os_init(void) {
 
 	/* This context now becomes the idle proess. */
 	while (1) {
-//		printk("Yinyanghu OS\n");
 		idle_cpu();
+		
 	}
 }
 
@@ -70,9 +90,24 @@ void init_service(void) {
 	init_PM();
 }
 
+
+void load_info(void) {
+	int_32	i;
+	for (i = 0; i < 8; ++ i)
+		printk("Process %d, CR3 = %x\n", i, *((uint_32 *)(&((Proc + i) -> cr3))));
+	printk("============================\n");
+}
+
+
 void welcome(void) {
 	color_printk("Welcome to Yinyanghu OS!\n");
 	color_printk("Hello Yinyanghu!\n");
+	/*
+	uint_32 i = 0;
+	for (i = 0; i < 256; ++ i)
+		color_console_printc(i, BLACK, 'Y');
+	panic("Find Color!\n");
+	*/
 	/*
 	static char prompt[] = "Hello, OS World!\n";
 	const char *str;

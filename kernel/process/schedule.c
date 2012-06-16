@@ -25,7 +25,8 @@ void schedule(void) {
 		if (current_pcb -> status == STATUS_RUNNING)
 			current_pcb -> status = STATUS_WAITING;
 		current_pcb = find_next_live_process();
-//		printk("%d\n", current_pcb -> pid);
+		//if (current_pcb -> pid == 6)
+//		color_printk("%d", current_pcb -> pid);
 		current_pcb -> status = STATUS_RUNNING;
 //		printk("%d", current_pcb -> pid);
 //		printk("CR3 = %x\n", *((uint_32 *)(&(current_pcb -> cr3))));
@@ -50,13 +51,13 @@ void schedule(void) {
 		//printk("Why?????????????????\n");
 		asm volatile ("movl %0, %%cr3" : : "r"(*((uint_32 *)(&(current_pcb -> cr3)))));
 
-/*
-		if (current_pcb -> pid == 8)
+		/*
+		if (current_pcb -> pid == 14)
 		{
 			printk("Hello Yinyanghu!\n");
-//			panic("sakura\n");
+			panic("sakura\n");
 		}
-*/
+		*/
 
 //		printk("Saving CR3...........Successful!\n");
 		need_sched = FALSE;

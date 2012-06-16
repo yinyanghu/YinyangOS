@@ -4,11 +4,11 @@
 
 void vfprintf(void (*printer)(char), const char *ctl, void **args) {
 
-	uint_32 temp[MAX_LEN];
-	int_32 dec;
-	uint_32 hex;
-	char *ch;
-	int i;
+	uint_32		temp[MAX_LEN];
+	int_32		dec;
+	uint_32		hex;
+	char		*ch;
+	int_32		i;
 	
 	for (; *ctl != 0; ++ ctl)
 	{
@@ -55,10 +55,7 @@ void vfprintf(void (*printer)(char), const char *ctl, void **args) {
 				case 's':	for (ch = (char *)(*(args ++)); *ch != 0; ++ ch)
 							printer(*ch);
 						break; 
-
 			}
 	}
-
-
 }
 

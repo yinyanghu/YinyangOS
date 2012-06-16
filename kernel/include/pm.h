@@ -1,10 +1,10 @@
 #ifndef __PM_H__
 #define __PM_H__
 
-#define PM_LOAD_PROC	0xAA
-#define PM_EXIT_PROC	0xBB
-#define PM_WAITPID		0xCC
-#define PM_FORK			0xDD
+#define PM_LOAD_PROC	0xC0
+#define PM_EXIT_PROC	0xC1
+#define PM_WAITPID		0xC2
+#define PM_FORK			0xC3
 
 
 extern pid_t	PM;

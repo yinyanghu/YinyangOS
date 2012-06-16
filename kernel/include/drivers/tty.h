@@ -1,8 +1,8 @@
 #ifndef __TTY_H__
 #define __TTY_H__
 
-#define DEV_READ	0xC
-#define DEV_WRITE	0xD
+#define DEV_READ	0x30
+#define DEV_WRITE	0x31
 
 
 #define BACK		14

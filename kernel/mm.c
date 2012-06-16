@@ -11,7 +11,6 @@ void allocate_page(struct PCB *, void *, uint_32);
 
 void free_page(struct PCB *, void *, uint_32);
 
-void copy_page(struct PCB *, struct PCB *);
 
 void MemoryManagement(void) {
 
@@ -19,6 +18,7 @@ void MemoryManagement(void) {
 
 	while (TRUE) {
 		receive(ANY, &m);
+		//color_printk("MM receive from %d, do %x\n", m.src, m.type);
 		switch (m.type)
 		{
 			case MM_ALLOCATE:
@@ -40,9 +40,10 @@ void MemoryManagement(void) {
 				break;
 
 			case MM_COPY:
-				printk("Starting Fork Memory Copy.................OK!\n");
+				//printk("Starting Fork Memory Copy.................OK!\n");
 				copy_page(m.mm_msg.source_pcb, m.mm_msg.target_pcb);
 				m.type = -1;
+//				printk("send from MM to %d\n", m.src);
 				send(m.src, &m);
 				break;
 		}
@@ -52,11 +53,24 @@ void MemoryManagement(void) {
 }
 
 void init_MM(void) {
-	static int_32	i;
+	int_32	i;
 	for (i = 0; i < NR_PPAGE_ENTRY; ++ i)
 		Ppage_flag[i] = 0;
 
 }
+
+
+static inline uint_32 count_empty_page(void) {
+	uint_32	total;
+	int_32	i;
+
+	total = 0;
+	for (i = 0; i < NR_PPAGE_ENTRY; ++ i)
+		if (Ppage_flag[i] == 0)
+			++ total;
+	return total;
+}
+
 
 
 //return Physical Address
@@ -74,7 +88,7 @@ static inline uint_32 pa_to_id(uint_32 pa) {
 //allocate physical memory, exclude kernel space, 16MB --> 128MB
 //need better algorithm!
 static inline void * allocate_memory(void) {
-	static int_32	i;
+	int_32	i;
 	for (i = 0; i < NR_PPAGE_ENTRY; ++ i)
 		if (Ppage_flag[i] == 0)
 		{
@@ -102,8 +116,8 @@ static inline void share_memory(void *addr) {
 //copy physical memory from source address to target address
 //unit = 4KB
 static void copy_memory(uint_32 src, uint_32 dest) {
-	static int_32	i;	
-	printk("Source Address = %x, Target Address = %x\n", src, dest);
+	int_32	i;	
+	//printk("Source Address = %x, Target Address = %x\n", src, dest);
 	for (i = 0; i < (PAGE_SIZE ); ++ i)
 		*((uint_8 *)dest + i) = *((uint_8 *)src + i);
 		//printk("%x\n", *((uint_8 *)dest + i));
@@ -130,17 +144,17 @@ void allocate_page(struct PCB *pcb, void *start, uint_32 length) {
 	uint_32 pa = (pte & ~0xFFF) | ((uint_32)start & 0xFFF);
 	*/
 	
-	static struct PageDirectoryEntry	*pdir;
-	static struct PageTableEntry		*pent, *init_ptr;
+	struct PageDirectoryEntry	*pdir;
+	struct PageTableEntry		*pent, *init_ptr;
 
 	uint_32 pde = ((uint_32)start) >> 22;
 	uint_32 pte = (((uint_32)start) >> 12) & 0x3FF;
 
 	pdir = (struct PageDirectoryEntry *)(pcb -> pagedir);
 
-	static void		*addr;
+	void		*addr;
 
-	static int_32	i;
+	int_32	i;
 	
 	while (length != 0)
 	{
@@ -180,10 +194,10 @@ void allocate_page(struct PCB *pcb, void *start, uint_32 length) {
 
 void exit_page(struct PCB *pcb) {
 	
-	static struct PageDirectoryEntry	*pdir;
-	static struct PageTableEntry		*pent;
+	struct PageDirectoryEntry	*pdir;
+	struct PageTableEntry		*pent;
 
-	static int_32	i, j;
+	int_32	i, j;
 
 	pdir = (struct PageDirectoryEntry *)(pcb -> pagedir);
 
@@ -202,22 +216,23 @@ void exit_page(struct PCB *pcb) {
 			make_invalid_pde(pdir + i);
 		}
 
+	color_printk("                                                           Empty Page = %d\n", count_empty_page());
 }
 
 
 void copy_page(struct PCB *source, struct PCB *target) {
-	static struct PageDirectoryEntry	*pdir_source, *pdir_target;
-	static struct PageTableEntry		*pent_source, *pent_target;
+	struct PageDirectoryEntry	*pdir_source, *pdir_target;
+	struct PageTableEntry		*pent_source, *pent_target;
 
-	static void		*addr;
+	void		*addr;
 
-	static int_32	i, j;
+	int_32	i, j;
 
 	pdir_source = (struct PageDirectoryEntry *)(source -> pagedir);
 	pdir_target = (struct PageDirectoryEntry *)(target -> pagedir);
 
-	printk("Enter Copy Page.....................OK!\n");
-	printk("pcb = %d %d\n", source -> pid , target -> pid);
+	//printk("Enter Copy Page.....................OK!\n");
+	//printk("pcb = %d %d\n", source -> pid , target -> pid);
 
 	/*
 	for (i =USER_MEM_LOW; i < USER_MEM_HIGH; i += 4)
@@ -276,16 +291,16 @@ void free_page(struct PCB *pcb, void *start, uint_32 length) {
 	uint_32 pa = (pte & ~0xFFF) | ((uint_32)start & 0xFFF);
 	*/
 	
-	static struct PageDirectoryEntry	*pdir;
-	static struct PageTableEntry		*pent;
+	struct PageDirectoryEntry	*pdir;
+	struct PageTableEntry		*pent;
 
 	uint_32 pde = ((uint_32)start) >> 22;
 	uint_32 pte = (((uint_32)start) >> 12) & 0x3FF;
 
 	pdir = (struct PageDirectoryEntry *)(pcb -> pagedir);
 
-	static boolean		clean_pd;
-	static int_32		i;
+	boolean		clean_pd;
+	int_32		i;
 	
 	while (length != 0)
 	{
@@ -337,14 +352,14 @@ void free_page(struct PCB *pcb, void *start, uint_32 length) {
 
 void init_user_page(struct PCB *pcb) {
 
-	static struct PageDirectoryEntry	*pdir;
-	static struct PageTableEntry		*pent;
+	struct PageDirectoryEntry	*pdir;
+	struct PageTableEntry		*pent;
 
-	static void				*addr;
+	void				*addr;
 
 //	uint_32				PT_offset;
 
-	printk("enter init_user_page\n");
+	//printk("enter init_user_page\n");
 
 	pdir = (struct PageDirectoryEntry *)(pcb -> pagedir);
 	//pent = (struct PageTableEntry *)va_to_pa(pcb -> pagetable);
@@ -352,13 +367,13 @@ void init_user_page(struct PCB *pcb) {
 
 	//PT_offset = (uint_32)va_to_pa(pcb -> pagetable);
 
-	static int_32	 i, j;
+	int_32	 i, j;
 
 	//initialize page table
 	for (i = 0; i < NR_PDE_ENTRY; ++ i)
 		make_invalid_pde(pdir + i);
 
-	printk("initialize page table.................Successful!\n");
+	//printk("initialize page table.................Successful!\n");
 	//for kernel space
 	for (i = 0; i < USER_MEM_LOW / PD_SIZE; ++ i)
 	{
@@ -372,19 +387,19 @@ void init_user_page(struct PCB *pcb) {
 		}
 	}
 
-	printk("set kernel space page table...............Successful\n");
+	//printk("set kernel space page table...............Successful\n");
 
 	//for user space
 	
 	//allocate a user stack, below 0xC0000000, 4KB
 	allocate_page(pcb, (void *)0xC0000000 - 1, 1);
 	
-	printk("set user stack page table...............Successful\n");
+	//printk("set user stack page table...............Successful\n");
 
 	*(uint_32 *)&(pcb -> cr3) = 0;
 	(pcb -> cr3).page_directory_base = ((uint_32)va_to_pa(pdir)) >> 12;
-	printk("set CR3 register...............Successful\n");
-	printk("exit init_user_page..............Successful\n");
+	//printk("set CR3 register...............Successful\n");
+	//printk("exit init_user_page..............Successful\n");
 }
 
 /*
