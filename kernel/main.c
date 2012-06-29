@@ -3,9 +3,9 @@
 
 void welcome(void);
 void init_service(void);
+void load_info(void);
 
-void
-os_init(void) {
+void os_init(void) {
 	/* Notice that when we are here, IF is always 0 (see bootloader) */
 
 	/* We must set up kernel virtual memory first because our kernel
@@ -59,6 +59,7 @@ os_init(void) {
 	Create_kthread(ProcessManagement);
 	PM = 6;
 
+	load_info();
 	
 	welcome();
 
