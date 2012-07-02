@@ -9,6 +9,7 @@
 #define INT80_GETPID		0x5
 #define INT80_WAITPID		0x6
 #define INT80_FORK			0x7
+#define INT80_EXEC			0x8
 
 void init_idt(void);
 void init_intr(void);

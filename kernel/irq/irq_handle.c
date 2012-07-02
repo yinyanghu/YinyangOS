@@ -117,7 +117,8 @@ void int_handle(struct TrapFrame *tf) {
 			break;
 
 		case INT80_EXIT:
-			color_printk("Enter Int $0x80 Exiting System Call..................OK\n");
+			green_printk("[OK!] ");
+			red_printk("Enter Int $0x80 Exiting System Call\n");
 			m.type = PM_EXIT_PROC;
 			m.pm_msg.pid = current_pcb -> pid;
 			m.pm_msg.p1 = tf -> ebx;
@@ -146,6 +147,16 @@ void int_handle(struct TrapFrame *tf) {
 			receive(PM, &m);
 			tf -> eax = m.pm_msg.p1;
 			//color_printk("receive = %d\n", tf -> eax);
+			break;
+
+		case INT80_EXEC:
+			m.type = PM_EXEC;
+			m.pm_msg.file_name = tf -> ebx;
+			m.pm_msg.pid = current_pcb -> pid;
+			m.pm_msg.p1 = tf -> ecx;
+			send(PM, &m);
+			receive(PM, &m);
+			panic("Impossible return to INT80_EXEC!!!\n");
 			break;
 
 		default: 

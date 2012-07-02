@@ -7,10 +7,15 @@ pid_t	MM;
 
 uint_8 Ppage_flag[NR_PPAGE_ENTRY];
 
-void allocate_page(struct PCB *, void *, uint_32);
+static void allocate_page(struct PCB *, void *, uint_32);
 
-void free_page(struct PCB *, void *, uint_32);
+static void free_page(struct PCB *, void *, uint_32);
 
+static void exec_page(struct PCB *pcb);
+
+static void copy_page(struct PCB *, struct PCB *);
+
+static void exit_page(struct PCB *);
 
 void MemoryManagement(void) {
 
@@ -44,6 +49,12 @@ void MemoryManagement(void) {
 				copy_page(m.mm_msg.source_pcb, m.mm_msg.target_pcb);
 				m.type = -1;
 //				printk("send from MM to %d\n", m.src);
+				send(m.src, &m);
+				break;
+
+			case MM_EXEC:
+				exec_page(m.mm_msg.target_pcb);	
+				m.type = -1;
 				send(m.src, &m);
 				break;
 		}
@@ -136,7 +147,7 @@ static inline boolean Page_Table_Fault(struct PageTableEntry *ptr) {
 
 
 //length:	unit = 4KB
-void allocate_page(struct PCB *pcb, void *start, uint_32 length) {
+static void allocate_page(struct PCB *pcb, void *start, uint_32 length) {
 
 	/*
 	uint_32 pde = ((uint_32*)(((uint_32)(pcb -> cr3)) & ~0xFFF))[((uint_32)start) >> 22];
@@ -192,7 +203,43 @@ void allocate_page(struct PCB *pcb, void *start, uint_32 length) {
 	
 }
 
-void exit_page(struct PCB *pcb) {
+static void exec_page(struct PCB *pcb) {
+	struct PageDirectoryEntry	*pdir;
+	struct PageTableEntry		*pent;
+
+	//void		*addr;
+
+	int_32	i, j;
+
+	pdir = (struct PageDirectoryEntry *)(pcb -> pagedir);
+
+
+	//User Space:		0 --> 3G
+	for (i = 0; i < (NR_PDE_ENTRY >> 2) * 3; ++ i)
+		if (Page_Directory_Fault(pdir + i) == FALSE)
+		{
+			pent = (struct PageTableEntry *)(((pdir + i) -> page_frame) << 12);
+
+			for (j = 0; j < NR_PTE_ENTRY; ++ j)
+				if (Page_Table_Fault(pent + j) == FALSE)
+				{
+					free_memory((void *)((pent + j) -> page_frame << 12));
+				}
+
+			free_memory((void *)((pdir + i) -> page_frame << 12));
+			make_invalid_pde(pdir + i);
+		}
+
+
+	//allocate a user stack, below 0xC0000000, 4KB
+	allocate_page(pcb, (void *)0xC0000000 - 1, 1);
+
+	//Kernel Space:		3G --> 4G
+	//nothing
+}
+
+
+static void exit_page(struct PCB *pcb) {
 	
 	struct PageDirectoryEntry	*pdir;
 	struct PageTableEntry		*pent;
@@ -216,11 +263,11 @@ void exit_page(struct PCB *pcb) {
 			make_invalid_pde(pdir + i);
 		}
 
-	color_printk("                                                           Empty Page = %d\n", count_empty_page());
+	//red_printk("                                                           Empty Page = %d\n", count_empty_page());
 }
 
 
-void copy_page(struct PCB *source, struct PCB *target) {
+static void copy_page(struct PCB *source, struct PCB *target) {
 	struct PageDirectoryEntry	*pdir_source, *pdir_target;
 	struct PageTableEntry		*pent_source, *pent_target;
 
@@ -274,16 +321,24 @@ void copy_page(struct PCB *source, struct PCB *target) {
 
 	//Kernel Space:		3G --> 4G
 	for (i = (NR_PDE_ENTRY >> 2) * 3; i < NR_PDE_ENTRY; ++ i)
-	{
-		make_pde(pdir_target + i, (void *)(((pdir_source + i) -> page_frame) << 12));
-		share_memory((void *)(((pdir_source + i) -> page_frame) << 12));
-		//pdir_target[i] = pdir_source[i];
-	}
-	
+		if (Page_Directory_Fault(pdir_source + i) == FALSE)
+		{
+			make_pde(pdir_target + i, (void *)(((pdir_source + i) -> page_frame) << 12));
+			share_memory((void *)(((pdir_source + i) -> page_frame) << 12));
+			//pdir_target[i] = pdir_source[i];
+		}
+		else
+			make_invalid_pde(pdir_target + i);
+
+
+	//save CR3
+	*(uint_32 *)&(target -> cr3) = 0;
+	(target-> cr3).page_directory_base = ((uint_32)va_to_pa(target -> pagedir)) >> 12;
+
 }
 
 //length:	unit = 4KB
-void free_page(struct PCB *pcb, void *start, uint_32 length) {
+static void free_page(struct PCB *pcb, void *start, uint_32 length) {
 
 	/*
 	uint_32 pde = ((uint_32*)(((uint_32)(pcb -> cr3)) & ~0xFFF))[((uint_32)start) >> 22];

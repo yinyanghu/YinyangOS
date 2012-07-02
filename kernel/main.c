@@ -2,7 +2,7 @@
 
 
 void welcome(void);
-void init_service(void);
+void init_servers(void);
 void load_info(void);
 
 void os_init(void) {
@@ -34,8 +34,14 @@ void os_init(void) {
 	/* Initialize the drivers. */
 	init_drivers();
 	
-	/* Initialize the services. */
-	init_service();
+	green_printk("[OK!] ");
+	printk("Initializing drivers.\n");
+
+	/* Initialize the servers. */
+	init_servers();
+
+	green_printk("[OK!] ");
+	printk("Initializing servers.\n");
 
 	/* Initialize process table. You should fill this. */
 	init_proc();
@@ -72,12 +78,15 @@ void os_init(void) {
 	//current_pcb -> esp = (void *)(stack_ptr + 4);
 	asm volatile("addl $0xC0000000, %esp");
 
+	//panic("stop!\n");
 	enable_interrupt();
 
 	/* load init user process */
 	Create_uthread(1);
 	//Create_uthread(2);
 
+	green_printk("[OK!] ");
+	printk("Loading user process.\n");
 
 	/* This context now becomes the idle proess. */
 	while (1) {
@@ -86,7 +95,7 @@ void os_init(void) {
 	}
 }
 
-void init_service(void) {
+void init_servers(void) {
 	init_MM();
 	init_PM();
 }
@@ -97,12 +106,14 @@ void load_info(void) {
 	for (i = 0; i < 8; ++ i)
 		printk("Process %d, CR3 = %x\n", i, *((uint_32 *)(&((Proc + i) -> cr3))));
 	printk("============================\n");
+	green_printk("[OK!] ");
+	printk("Loading kernel process.\n");
 }
 
 
 void welcome(void) {
-	color_printk("Welcome to Yinyanghu OS!\n");
-	color_printk("Hello Yinyanghu!\n");
+	red_printk("Welcome to Yinyanghu OS!\n");
+	red_printk("Hello Yinyanghu!\n");
 	/*
 	uint_32 i = 0;
 	for (i = 0; i < 256; ++ i)

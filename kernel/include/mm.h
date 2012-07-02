@@ -7,6 +7,7 @@
 #define MM_FREE			0xB1
 #define MM_EXIT_PROC	0xB2
 #define MM_COPY			0xB3
+#define MM_EXEC			0xB4
 
 extern pid_t	MM;
 
@@ -17,10 +18,6 @@ void MemoryManagement(void);
 void init_MM(void);
 
 void init_user_page(struct PCB *);
-
-void exit_page(struct PCB *);
-
-void copy_page(struct PCB *, struct PCB *);
 
 //void allocate_page(struct PCB *pcb, void *start, uint_32 length);
 

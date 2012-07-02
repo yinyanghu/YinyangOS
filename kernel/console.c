@@ -11,6 +11,7 @@
 /* color codes */
 #define BLACK		0
 #define BLUE		1
+#define GREEN		2
 #define WHITE		7
 #define RED			12
 
@@ -102,15 +103,23 @@ void red_console_printc(char ch) {
 	color_console_printc(RED, BLACK, ch);
 }
 
+void green_console_printc(char ch) {
+	color_console_printc(GREEN, BLACK, ch);
+}
 
 void printk(const char *ctl, ...) {
 	void **args = (void **)&ctl + 1;
 	vfprintf(console_printc, ctl, args);
 }
 
-void color_printk(const char *ctl, ...) {
+void red_printk(const char *ctl, ...) {
 	void **args = (void **)&ctl + 1;
 	vfprintf(red_console_printc, ctl, args);
+}
+
+void green_printk(const char *ctl, ...) {
+	void **args = (void **)&ctl + 1;
+	vfprintf(green_console_printc, ctl, args);
 }
 
 void panic(const char *ctl, ...) {

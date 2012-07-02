@@ -20,6 +20,8 @@ static void Exit_uthread(pid_t);
 
 static pid_t Fork_uthread(pid_t);
 
+static void Exec_uthread(pid_t, uint_32, uint_32);
+
 void ProcessManagement(void) {
 
 	static struct Message m;		
@@ -48,6 +50,11 @@ void ProcessManagement(void) {
 			case PM_WAITPID:
 				Sleep(m.pm_msg.pid, m.pm_msg.p1);
 				break;
+
+			case PM_EXEC:
+	//panic("stop!\n");
+				Exec_uthread(m.pm_msg.pid, m.pm_msg.file_name, m.pm_msg.p1);
+				break;
 		}
 	}
 }
@@ -65,7 +72,178 @@ static inline uint_32 V_to_P(uint_32 va, struct PCB *pcb) {
 	return ((pte & ~0xFFF) | (va & 0xFFF));
 }
 
-pid_t Fork_uthread(pid_t pid) {
+
+
+static void Exec_uthread(pid_t pid, uint_32 file_name, uint_32 argv_addr) {
+
+	static struct Message m;
+
+
+	struct PCB *pcb_ptr;
+
+	pcb_ptr = Proc + pid;
+
+	pcb_ptr -> time_elapsed = 0;
+	init_message_pool(pcb_ptr);
+
+	static uint_8		argv[argv_size];
+	static uint_32		argv_ptr[NR_argv];
+	int_32				left, right;
+	uint_32				argc;
+	
+
+	left = right = 0;
+	//[0, argv_last]
+
+	//panic("stop2!\n");
+	copy_to_kernel(pcb_ptr, (void *)(argv + right), (void *)(argv_addr + right), 1);
+
+	while (1)
+	{
+		++ right;
+		copy_to_kernel(pcb_ptr, (void *)(argv + right), (void *)(argv_addr + right), 1);
+		if (argv[right] == 0)
+		{
+			if (argv[right - 1] == 0)
+				break;
+
+			argv_ptr[argc ++] = left;
+			left = right + 1;
+		}
+	}
+
+
+	//free memory
+	m.type = MM_EXEC;
+	m.mm_msg.target_pcb = pcb_ptr;
+	send(MM, &m);
+	receive(MM, &m);
+
+
+	//load program from disk to memory
+	struct ELFHeader *elf;
+	struct ProgramHeader *ph, *eph;
+
+	m.type = FM_READ;
+	m.fm_msg.file_name = file_name;
+	m.fm_msg.buf = buf;
+	m.fm_msg.offset = 0;
+	m.fm_msg.length = 4096;
+	send(FM, &m);
+	receive(FM, &m);
+
+	elf = (struct ELFHeader *)buf;
+
+	ph = (struct ProgramHeader *)((char *)elf + elf -> phoff);
+	eph = ph + elf -> phnum;
+
+	uint_32	va;
+
+	for (; ph < eph; ++ ph) {
+		va = (uint_32)ph -> vaddr;
+
+		m.type = FM_READ;
+		m.fm_msg.file_name = file_name;
+		m.fm_msg.buf = segment_buf;
+		m.fm_msg.offset = ph -> off;
+		m.fm_msg.length = ph -> filesz;
+		send(FM, &m);
+		receive(FM, &m);
+
+
+		m.type = MM_ALLOCATE;
+		m.mm_msg.target_pcb = pcb_ptr;
+		/* Virtual Address Space = [va, va + memsz) */
+		m.mm_msg.start = va;
+		m.mm_msg.length = ((ph -> memsz) >> 12) + 1;	
+		send(MM, &m);
+		receive(MM, &m);
+
+		copy_from_kernel(pcb_ptr, (void *)va, segment_buf, ph -> filesz);
+	}
+	
+	printk("Finish analyse ELF header!\n");
+
+	//Initialize the user stack
+	++ right;
+
+	uint_32		stack_ptr = 0xC0000000;
+
+	stack_ptr -= right;
+	copy_from_kernel(pcb_ptr, (void *)stack_ptr, (void *)argv, right); 
+
+	int_32		i;
+	uint_32		base = stack_ptr;
+	printk("base = %x\n", base);
+	for (i = argc - 1; i >= 0; -- i)
+	{
+		stack_ptr -= 4;
+		argv_ptr[i] += base;
+		printk("%d : %x, stack %x\n", i, argv_ptr[i], stack_ptr);
+		copy_from_kernel(pcb_ptr, (void *)stack_ptr, (void *)(argv_ptr + i), 4);
+	}
+
+
+	uint_32	key;
+	//argv
+	key = stack_ptr;	
+	stack_ptr -= 4;
+	copy_from_kernel(pcb_ptr, (void *)(stack_ptr), (void *)&key, 4);
+
+	//argc
+	stack_ptr -= 4;
+	copy_from_kernel(pcb_ptr, (void *)stack_ptr, (void *)&argc, 4);
+
+
+	green_printk("Finish copy parameters!\n");
+
+
+	//return address
+	key = (uint_32)asm_do_int80_exit;
+	stack_ptr -= 4;
+	copy_from_kernel(pcb_ptr, (void *)stack_ptr, (void *)&key, 4);
+
+	//eflags
+	key = (1 << 9);
+	stack_ptr -= 4;
+	copy_from_kernel(pcb_ptr, (void *)stack_ptr, (void *)&key, 4);
+
+	//%cs	
+	key = 8;
+	stack_ptr -= 4;
+	copy_from_kernel(pcb_ptr, (void *)stack_ptr, (void *)&key, 4);
+
+	//%eip
+	key = elf -> entry;
+	stack_ptr -= 4;
+	copy_from_kernel(pcb_ptr, (void *)stack_ptr, (void *)&key, 4);
+
+	//TrapFrame
+	key = 0;
+	for (i = 0; i < 9; ++ i)
+	{
+		stack_ptr -= 4;
+		copy_from_kernel(pcb_ptr, (void *)stack_ptr, (void *)&key, 4);
+	}
+
+	//Initialize current_pcb -> esp
+
+	stack_ptr -= 4;
+	key = stack_ptr + 4;
+	copy_from_kernel(pcb_ptr, (void *)stack_ptr, (void *)&key, 4);
+	pcb_ptr -> esp = (void *)stack_ptr;
+		
+	green_printk("Ready to execute!\n");
+
+	lock();
+	pcb_ptr -> status = STATUS_WAITING;
+	unlock();
+}
+
+
+
+
+static pid_t Fork_uthread(pid_t pid) {
 
 	uint_32 new;
 
@@ -83,7 +261,7 @@ pid_t Fork_uthread(pid_t pid) {
 	if (new == PROC_FULL)
 		panic("Process Table is Full!\n");
 
-	color_printk("Forking: New PID = %d\n", new);
+	green_printk("Forking: New PID = %d\n", new);
 	target_pcb = Proc + new;
 
 	target_pcb -> pid = new;
@@ -126,11 +304,12 @@ pid_t Fork_uthread(pid_t pid) {
 
 
 
-
+/*
+ completed in MM
 	//save CR3
 	*(uint_32 *)&(target_pcb -> cr3) = 0;
 	(target_pcb-> cr3).page_directory_base = ((uint_32)va_to_pa(target_pcb -> pagedir)) >> 12;
-
+*/
 
 	//eax <-- return address
 	uint_32		eax_addr;
@@ -208,7 +387,7 @@ static void Exit_uthread(pid_t pid) {
 
 	struct PCB		*pcb_ptr;
 
-	//static struct Message	m;
+	static struct Message	m;
 
 	lock();	
 
@@ -220,16 +399,14 @@ static void Exit_uthread(pid_t pid) {
 	pcb_ptr -> next -> prev = pcb_ptr -> prev;
 
 	unlock();
-//	exit_page(pcb_ptr);
+	//exit_page(pcb_ptr);
 	
 //	printk("status = %d, flag = %d\n", pcb_ptr -> status, pcb_ptr -> flag);
 	
-	/*
 	m.type = MM_EXIT_PROC;
 	m.mm_msg.target_pcb = pcb_ptr;
 	send(MM, &m);
 	receive(MM, &m);
-	*/
 	
 
 	//printk("Exit_uthread........................OK!\n");
@@ -372,11 +549,12 @@ static void load_init_proc(uint_32 file_name, struct PCB *pcb) {
 	}
 	//panic("stop!");
 
-	printk("Finish analyse ELF header\n");
+	printk("Finish analyse ELF header!\n");
 	//initialize user stack
 	uint_32	stack_ptr = 0xC0000000;
 	uint_32	key;
 
+	//return address
 	key = (uint_32)asm_do_int80_exit;
 	stack_ptr -= 4;
 	copy_from_kernel(pcb, (void *)stack_ptr, (void *)&key, 4);
@@ -407,8 +585,8 @@ static void load_init_proc(uint_32 file_name, struct PCB *pcb) {
 
 	//Initialize current_pcb -> esp
 
+	key = stack_ptr;
 	stack_ptr -= 4;
-	key = stack_ptr + 4;
 	copy_from_kernel(pcb, (void *)stack_ptr, (void *)&key, 4);
 	pcb -> esp = (void *)stack_ptr;
 }

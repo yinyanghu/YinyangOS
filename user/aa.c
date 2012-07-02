@@ -1,5 +1,17 @@
 #include "oslib.h"
 
+int main(void)
+{
+	while (1)
+	{
+
+		if (fork() != 0)
+			break;
+	}
+
+	return 0;
+}
+
 /*
 void hanoi(int n, int a, int b, int c)
 {
@@ -14,6 +26,7 @@ void hanoi(int n, int a, int b, int c)
 }
 */
 
+/*
 int main(void)
 {
 	
@@ -44,7 +57,7 @@ int main(void)
 	return 0;
 }
 
-
+*/
 
 /*
 int *c;

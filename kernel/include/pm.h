@@ -5,6 +5,9 @@
 #define PM_EXIT_PROC	0xC1
 #define PM_WAITPID		0xC2
 #define PM_FORK			0xC3
+#define PM_EXEC			0xC4
+#define argv_size		150
+#define NR_argv			10
 
 
 extern pid_t	PM;

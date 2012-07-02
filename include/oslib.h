@@ -8,6 +8,7 @@
 #define INT80_GETPID		0x5
 #define INT80_WAITPID		0x6
 #define INT80_FORK			0x7
+#define INT80_EXEC			0x8
 
 extern int syscall_0(int);
 extern int syscall_1(int, int);
@@ -21,8 +22,10 @@ void sleep(int);
 int getpid(void);
 int waitpid(int);
 int fork(void);
+int execv(int, char **);
 
 
 int strlen(char *);
-void printf(const char *, ...);
+void scanf(char *, ...);
+void printf(char *, ...);
 
