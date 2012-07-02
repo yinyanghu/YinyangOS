@@ -4,12 +4,15 @@ Author: Jian Li (ID:yinyanghu), an undergraduate student in Nanjing University, 
 E-mail: lijianxp2005@gmail.com
 Google Talk: lijianxp2005@gmail.com
 
+Jul 3, 2012
+	Completed syscall exec(), but need more test! ^_^
+
 Jun 15, 2012
 	Fixed a critical bug in Message mechanism, and rebuild part of my code!
 	@_@
 
 Jun 14, 2012
-	Finish sample fork() system call!
+	Completed sample system call, fork()!
 	Fixed a bug!(JYY!!!!!!)
 
 Jun 13, 2012
