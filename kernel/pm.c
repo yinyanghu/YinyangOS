@@ -95,6 +95,8 @@ static void Exec_uthread(pid_t pid, uint_32 file_name, uint_32 argv_addr) {
 	left = right = 0;
 	//[0, argv_last]
 
+	argc = 0;
+
 	//panic("stop2!\n");
 	copy_to_kernel(pcb_ptr, (void *)(argv + right), (void *)(argv_addr + right), 1);
 
@@ -175,6 +177,7 @@ static void Exec_uthread(pid_t pid, uint_32 file_name, uint_32 argv_addr) {
 	int_32		i;
 	uint_32		base = stack_ptr;
 	printk("base = %x\n", base);
+	green_printk("argc = %d\n", argc);
 	for (i = argc - 1; i >= 0; -- i)
 	{
 		stack_ptr -= 4;
@@ -239,8 +242,6 @@ static void Exec_uthread(pid_t pid, uint_32 file_name, uint_32 argv_addr) {
 	pcb_ptr -> status = STATUS_WAITING;
 	unlock();
 }
-
-
 
 
 static pid_t Fork_uthread(pid_t pid) {
@@ -383,6 +384,8 @@ static void Sleep(pid_t pid, uint_32 wait_for) {
 	unlock();
 }
 
+
+
 static void Exit_uthread(pid_t pid) {
 
 	struct PCB		*pcb_ptr;
@@ -464,7 +467,6 @@ void Create_uthread(uint_32 file_name) {
 
 	unlock();
 }
-
 
 static void load_init_proc(uint_32 file_name, struct PCB *pcb) {
 
