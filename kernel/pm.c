@@ -126,7 +126,7 @@ static void Exec_uthread(pid_t pid, uint_32 file_name, uint_32 argv_addr) {
 	struct ELFHeader *elf;
 	struct ProgramHeader *ph, *eph;
 
-	m.type = FM_READ;
+	m.type = FM_READ_FILE;
 	m.fm_msg.file_name = file_name;
 	m.fm_msg.buf = buf;
 	m.fm_msg.offset = 0;
@@ -479,7 +479,7 @@ static void load_init_proc(uint_32 file_name, struct PCB *pcb) {
 
 	//printk("enter load_init_proc ...........Successful\n");
 	//printk("send FM read request ...........Successful\n");
-	m.type = FM_READ;
+	m.type = FM_READ_FILE;
 	m.fm_msg.file_name = file_name;
 	m.fm_msg.buf = buf;
 	m.fm_msg.offset = 0;
@@ -511,7 +511,7 @@ static void load_init_proc(uint_32 file_name, struct PCB *pcb) {
 		va = (uint_32)ph -> vaddr;
 
 		//printk("virtual address: %x\n", va);
-		m.type = FM_READ;
+		m.type = FM_READ_FILE;
 		m.fm_msg.file_name = file_name;
 		m.fm_msg.buf = segment_buf;
 		m.fm_msg.offset = ph -> off;
