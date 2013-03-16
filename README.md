@@ -80,23 +80,23 @@ Google Talk: lijianxp2005@gmail.com
 
 ***
 
-March 31, 2012:
+* March 31, 2012:
 	Release GameOS Ver 1.00!
 
-March 30, 2012:
+* March 30, 2012:
 	Improved!
 
-March 29, 2012:
+* March 29, 2012:
 	Modify!
 
-March 28, 2012:
+* March 28, 2012:
 	Almost completed!
 	But It seems not a STG game!
 
-March 27, 2012:
+* March 27, 2012:
 	Coding!
 
-March 26, 2012:
+* March 26, 2012:
 	Start!
 
 ***
