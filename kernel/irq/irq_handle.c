@@ -46,10 +46,12 @@ void irq_handle(struct TrapFrame *tf) {
 	//current_pcb -> esp = tf;
 
 	if (irq < 0) {
+		//printk("<0!!!\n");
 		panic("Unhandled exception!");
 	}
 
 	if (irq < 1000) {
+		//printk("<1000!!!\n");
 		panic("Unexpected exception #%d\n", irq);
 	} else if (irq >= 1000) {
 		int irq_id = irq - 1000;

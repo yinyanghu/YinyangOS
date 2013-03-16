@@ -53,12 +53,16 @@ ide_driver_thread(void) {
 			//printk("rr\n");
 			uint_32 i, data;
 			struct PCB *pcb = fetch_pcb(m.src);
+			//printk("length = %d\n", m.dev_io.length);
 			for (i = 0; i < m.dev_io.length; i ++) {
+				//printk("%d\n", i);
 				data = read_byte(m.dev_io.offset + i);
+				//printk("after data\n");
 				copy_from_kernel(pcb, m.dev_io.buf + i, &data, 1);
 			}
 			m.type = -1;
 			m.int_msg.p1 = i;
+			//printk("Almost Finished!\n");
 			send(m.src, &m);
 			//printk("ss\n");
 		} else if (m.type == DEV_WRITE) {
@@ -155,11 +159,14 @@ cache_init(void) {
 
 static struct SectorCache *
 cache_fetch(uint_32 sector) {
+	//printk("enter cache_fetch\n");
 	struct SectorCache *ptr = &cache[sector % NR_SEC_CACHE];
 
 	if (ptr->used == TRUE && ptr->sector == sector) {
+		//printk("hit\n");
 		/* cache hit, do nothing */
 	} else {
+		//printk("miss\n");
 		if (ptr->used == TRUE && ptr->dirty == TRUE) {
 			/* write back */
 			ide_prepare(ptr->sector);
@@ -179,7 +186,9 @@ cache_fetch(uint_32 sector) {
 static uint_8
 read_byte(uint_32 offset) {
 	uint_32 sector = offset >> 9;
+	//printk("help\n");
 	struct SectorCache *ptr = cache_fetch(sector);
+	//printk("help again\n");
 	return ptr->content[offset & 511];
 }
 static void

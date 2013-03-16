@@ -1,5 +1,14 @@
 #include "oslib.h"
 
+/*
+int main(void)
+{
+	while (1) printf("c");
+	return 0;
+}
+*/
+
+/*
 int main(void)
 {
 	while (1)
@@ -11,8 +20,8 @@ int main(void)
 
 	return 0;
 }
+*/
 
-/*
 void hanoi(int n, int a, int b, int c)
 {
 	if (n == 1)
@@ -24,7 +33,12 @@ void hanoi(int n, int a, int b, int c)
 	printf("from %d to %d\n", a, c);
 	hanoi(n - 1, b, a, c);
 }
-*/
+
+int main(void)
+{
+	hanoi(4, 1, 2, 3);
+	return 0;
+}
 
 /*
 int main(void)

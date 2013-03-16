@@ -78,9 +78,10 @@ void os_init(void) {
 	//current_pcb -> esp = (void *)(stack_ptr + 4);
 	asm volatile("addl $0xC0000000, %esp");
 
-	//panic("stop!\n");
 	enable_interrupt();
 
+	//panic("stop!\n");
+	
 	/* load init user process */
 	Create_uthread(1);
 	//Create_uthread(2);

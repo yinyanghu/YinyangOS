@@ -47,5 +47,4 @@ dd:		$(OBJS5) Makefile
 
 clean:
 	rm -f *.d *.o init_proc
-	rm -f ../lib/*.d ../lib/*.o
 	rm -f aa bb fork_bomb cc dd

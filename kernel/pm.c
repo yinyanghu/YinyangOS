@@ -52,7 +52,6 @@ void ProcessManagement(void) {
 				break;
 
 			case PM_EXEC:
-	//panic("stop!\n");
 				Exec_uthread(m.pm_msg.pid, m.pm_msg.file_name, m.pm_msg.p1);
 				break;
 		}
@@ -444,8 +443,10 @@ void Create_uthread(uint_32 file_name) {
 	init_user_page(new_pcb);
 
 	unlock();
+	//printk("here!\n");
 
 	load_init_proc(file_name, new_pcb);
+	//printk("here again!\n");
 
 	//initialize kernel stack
 	new_pcb -> kstack_top = (void *)((uint_32)(new_pcb -> kstack) + STACK_SIZE);
@@ -456,7 +457,7 @@ void Create_uthread(uint_32 file_name) {
 
 	//Ready to Schedule
 	
-	//printk("ready to schedule................!!!!\n");
+	printk("ready to schedule................!!!!\n");
 	lock();
 
 	new_pcb -> next = init;

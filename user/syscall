@@ -33,5 +33,3 @@ INT80_WAITPID
 	waitpid(pid_t wait_for)
 
 
-
-
