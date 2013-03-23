@@ -4,33 +4,33 @@ a simple Minix-like operating system
 
 ## Timeline
 
-* Jul 3, 2012
+* July 3, 2012
 
 > Completed syscall exec(), but need more test!
 
 > ^_^
 
-* Jun 15, 2012
+* June 15, 2012
 
 > Fixed a critical bug in Message mechanism, and rebuild part of my code!
 
 > @_@
 
-* Jun 14, 2012
+* June 14, 2012
 
 > Completed sample system call, fork()!
 
 > Fixed a bug!(JYY!!!!!!)
 
-* Jun 13, 2012
+* June 13, 2012
 
 > Completed most syscall except fork() and exec(). ^_^
 
-* Jun 9, 2012
+* June 9, 2012
 
 > Fuck! Compiler! Fuck! Static!
 
-* Jun 8, 2012
+* June 8, 2012
 
 > Modified lots of old codes!!!
 
